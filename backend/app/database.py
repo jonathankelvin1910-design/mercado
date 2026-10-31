@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     db_port: int = 3306
     db_user: str = "root"
     db_password: str = ""
-    db_name: str = "controle_gastos"
+    db_name: str = "mercado"
 
     @property
     def database_url(self) -> URL:
