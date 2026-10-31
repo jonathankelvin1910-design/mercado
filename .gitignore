@@ -1,0 +1,15 @@
+.aider*
+
+.env
+venv/
+__pycache__/
+node_modules/
+
+# macOS
+.DS_Store
+
+# macOS
+.DS_Store
+
+# macOS
+.DS_Store

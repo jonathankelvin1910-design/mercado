@@ -1,0 +1,693 @@
+<title>Mercado</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: etiqueta de gôndola. Uma faixa de resultado no topo, lista por categoria, uma coluna por mercado, "mais barato" no fim de cada linha. */
+:root {
+  --bg: #f3f4ef;
+  --surface: #ffffff;
+  --surface-2: #eaece4;
+  --line: #d6d9cd;
+  --ink: #17201a;
+  --muted: #5a665e;
+  --accent: #14774a;
+  --accent-ink: #0b4a2d;
+  --accent-soft: #d9f0e2;
+  --tag: #ffd633;
+  --tag-ink: #2a2300;
+  --danger: #b3261e;
+  --focus: #1b5fd0;
+  --shadow: rgba(20, 30, 24, .14);
+  --f-display: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --f-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111713; --surface: #18211c; --surface-2: #212c26; --line: #2d3a33;
+    --ink: #e9f0ea; --muted: #9aaba1; --accent: #46c088; --accent-ink: #bdf0d6;
+    --accent-soft: #1b3a2b; --tag: #ffd633; --tag-ink: #2a2300; --danger: #ff8a80;
+    --focus: #7fb0ff; --shadow: rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111713; --surface: #18211c; --surface-2: #212c26; --line: #2d3a33;
+  --ink: #e9f0ea; --muted: #9aaba1; --accent: #46c088; --accent-ink: #bdf0d6;
+  --accent-soft: #1b3a2b; --tag: #ffd633; --tag-ink: #2a2300; --danger: #ff8a80;
+  --focus: #7fb0ff; --shadow: rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-block: 24px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  background: var(--bg); z-index: 40;
+}
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 18px; }
+h1, h2 { font-family: var(--f-display); margin: 0; line-height: 1; letter-spacing: .01em; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Cabeçalho */
+.top h1 { font-size: 2.6rem; font-weight: 700; text-transform: uppercase; }
+.top p { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+
+/* Mercados */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.panel h2 { font-size: 1.15rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.mk-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.mk label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: 2px; }
+.mk input, .add input[type=text], .create select {
+  width: 100%; height: 42px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+.mk input { font-weight: 600; }
+.mk input::placeholder, input::placeholder { color: var(--muted); opacity: .8; font-weight: 400; }
+
+/* Faixa de resultado */
+.result {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px 16px; display: grid; gap: 10px; box-shadow: 0 6px 18px var(--shadow);
+}
+@media (min-width: 900px) and (min-height: 720px) {
+  .result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 8px); z-index: 30; }
+}
+.eyebrow { font-size: .75rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 600; }
+.res-head { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; justify-content: space-between; }
+.res-line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 4px; }
+.res-name { font-size: 2.3rem; font-weight: 700; text-transform: uppercase; text-wrap: balance; }
+.res-name.sm { font-size: 1.6rem; }
+.pricetag {
+  position: relative; background: var(--tag); color: var(--tag-ink);
+  font-family: var(--f-display); font-weight: 700; font-size: 1.9rem; line-height: 1;
+  padding: 5px 12px 5px 26px; border-radius: 4px 16px 16px 4px; font-variant-numeric: tabular-nums;
+}
+.pricetag::before {
+  content: ""; position: absolute; left: 9px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px;
+  border-radius: 50%; background: var(--surface); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .3);
+}
+.rank { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.rank li {
+  display: flex; align-items: baseline; gap: 6px; padding: 5px 10px; border: 1px solid var(--line);
+  border-radius: 6px; background: var(--surface-2); font-size: .95rem;
+}
+.rank li.first { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); }
+.rank b { font-family: var(--f-display); font-size: 1.05rem; }
+.rank .n { font-variant-numeric: tabular-nums; font-weight: 600; }
+.rank .d { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rank li.first .d { color: var(--accent-ink); }
+.res-note { margin: 0; font-size: .9rem; color: var(--muted); }
+.res-note + .res-note { margin-top: -4px; }
+.res-empty p { margin: 6px 0 0; color: var(--muted); max-width: 70ch; }
+.btn {
+  height: 40px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--line);
+  background: var(--surface); cursor: pointer; font-weight: 600;
+}
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+:root[data-theme="dark"] .btn.primary { color: #06210f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #06210f; } }
+.res-empty .btn { margin-top: 10px; }
+
+/* Adicionar produto */
+.add { display: grid; gap: 8px; }
+.add > label { font-weight: 600; }
+.combo { position: relative; max-width: 560px; }
+#sug {
+  position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 25; margin: 0; padding: 4px; list-style: none;
+  max-height: 19rem; overflow: auto; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; box-shadow: 0 10px 28px var(--shadow);
+}
+#sug li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 10px; border-radius: 6px; cursor: pointer; }
+#sug li small { color: var(--muted); white-space: nowrap; }
+#sug li[aria-selected="true"] { background: var(--accent-soft); color: var(--accent-ink); }
+#sug li[aria-selected="true"] small { color: var(--accent-ink); }
+#sug li.in { opacity: .55; }
+.create { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: .95rem; }
+.create select { width: auto; min-width: 180px; }
+.status { margin: 0; min-height: 1.4em; font-size: .9rem; color: var(--muted); }
+.link { background: none; border: 0; padding: 0 0 0 6px; color: var(--accent); font-weight: 600; text-decoration: underline; cursor: pointer; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.exnote { margin: 0; padding: 8px 12px; border-radius: 6px; background: var(--surface-2); border: 1px dashed var(--muted); font-size: .9rem; }
+
+/* Tabela */
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1000px; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+thead th {
+  font-family: var(--f-display); font-size: 1.05rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase;
+  background: var(--surface-2); color: var(--ink);
+}
+th.mkh, td.price, td.tv, td.mkn { width: 7rem; text-align: right; }
+th.mkh.unnamed { color: var(--muted); font-weight: 500; }
+th.qty, td.qty { width: 5rem; }
+th.win, td.win { width: 12rem; }
+th.rmh, td.rm { width: 3rem; padding-left: 0; }
+td.prod, th.prod { min-width: 14rem; position: sticky; left: 0; z-index: 2; background: var(--surface); }
+thead th.prod { background: var(--surface-2); z-index: 3; }
+.pname { font-weight: 500; }
+tr.cat td { background: var(--surface-2); padding-block: 5px; border-bottom: 1px solid var(--line); }
+tr.cat td.catname { position: sticky; left: 0; z-index: 2; font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+tr.cat small { font-family: var(--f-body); font-weight: 500; color: var(--muted); margin-left: 6px; font-size: .8rem; }
+tr.cat td.mkn { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 7rem; }
+td.price input, td.qty input {
+  width: 100%; height: 40px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--surface); color: var(--ink); font-variant-numeric: tabular-nums;
+}
+td.price input { text-align: right; }
+td.qty input { text-align: center; }
+td.price.is-min input { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+td.price input.bad { border-color: var(--danger); }
+.winbox { display: grid; line-height: 1.2; }
+.w-name { font-weight: 700; color: var(--accent-ink); }
+.w-sub { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.none { color: var(--muted); }
+.x { width: 34px; height: 34px; border-radius: 6px; border: 1px solid transparent; background: none; color: var(--muted); font-size: 1.3rem; line-height: 1; cursor: pointer; }
+.x:hover { border-color: var(--line); color: var(--danger); background: var(--surface-2); }
+tr.empty td { text-align: center; color: var(--muted); padding: 28px; }
+tr.flash td { animation: flash 1.4s ease-out; }
+@keyframes flash { from { background: var(--tag); } to { background: transparent; } }
+tr.item td.prod { animation: none; }
+tfoot th, tfoot td { background: var(--surface-2); border-bottom: 0; }
+tfoot tr.t1 th, tfoot tr.t1 td { border-top: 2px solid var(--ink); }
+tfoot th { font-family: var(--f-display); font-size: 1.05rem; text-transform: uppercase; letter-spacing: .03em; font-weight: 600; background: var(--surface-2); }
+td.tv { font-variant-numeric: tabular-nums; font-weight: 600; }
+td.tv small { display: block; font-weight: 400; color: var(--muted); font-size: .75rem; }
+tr.t1 td.tv.best { color: var(--accent-ink); background: var(--accent-soft); }
+tr.t2 td.tv, tr.t2 th { color: var(--muted); }
+.foot { margin: 0; color: var(--muted); font-size: .9rem; max-width: 80ch; }
+
+/* Telas estreitas: cada produto vira um cartão */
+@media (max-width: 900px) {
+  .mk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .top h1 { font-size: 2.2rem; }
+  .res-name { font-size: 1.9rem; }
+  .tablewrap { overflow: visible; background: none; border: 0; }
+  table, tbody, tfoot { display: block; min-width: 0; width: 100%; }
+  thead { display: none; }
+  tr { display: block; }
+  td, th { border: 0; }
+  tr.cat { margin: 16px 0 8px; }
+  tr.cat td { display: none; }
+  tr.cat td.catname { display: block; position: static; background: none; padding: 0; font-size: 1.3rem; }
+  tr.item {
+    position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 10px;
+  }
+  tr.item td { display: block; padding: 0; background: none; width: auto; min-width: 0; text-align: left; }
+  tr.item td.prod { grid-column: 1 / -1; position: static; padding-right: 40px; font-size: 1.05rem; }
+  tr.item td.qty { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; }
+  tr.item td.qty::before { content: "Quantidade"; font-size: .8rem; color: var(--muted); }
+  tr.item td.qty input { width: 5rem; }
+  td.price::before, td.tv::before {
+    content: attr(data-mk); display: block; font-size: .78rem; color: var(--muted); margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;
+  }
+  tr.item td.win { grid-column: 1 / -1; padding-top: 4px; }
+  tr.item td.rm { position: absolute; top: 8px; right: 8px; padding: 0; }
+  tr.item td.price.is-min { background: none; }
+  tr.empty td { display: block; }
+  tfoot tr.tot {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; margin-top: 10px; padding: 12px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  }
+  tfoot th, tfoot td { display: block; padding: 0; background: none; border: 0; text-align: left; }
+  tfoot th { grid-column: 1 / -1; }
+  tfoot td.win, tfoot td:empty { display: none; }
+  tfoot tr.t1 th, tfoot tr.t1 td { border-top: 0; }
+  tr.t1 td.tv.best { background: var(--accent-soft); border-radius: 6px; padding: 4px 6px; }
+}
+@media (prefers-reduced-motion: reduce) { tr.flash td { animation: none; background: var(--accent-soft); } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Mercado</h1>
+    <p>Feira do mês. Monte a lista, digite o preço de cada produto em cada mercado e veja onde sai mais barato comprar.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="mk-h">
+    <h2 id="mk-h">Mercados</h2>
+    <div class="mk-grid" id="mkGrid"></div>
+  </section>
+
+  <section class="result" id="result" aria-live="polite"></section>
+
+  <section class="add">
+    <label for="q">Adicionar produto</label>
+    <div class="combo">
+      <input id="q" type="text" role="combobox" aria-expanded="false" aria-controls="sug" aria-autocomplete="list"
+             autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Digite as primeiras letras: arr, fei, det…">
+      <ul id="sug" role="listbox" aria-label="Produtos encontrados" hidden></ul>
+    </div>
+    <div class="create" id="createRow" hidden>
+      <span>Produto novo: <b id="newName"></b></span>
+      <label class="sr" for="newCat">Categoria do produto novo</label>
+      <select id="newCat"></select>
+      <button class="btn" id="newBtn" type="button">Criar e adicionar</button>
+    </div>
+    <p class="status" id="status" role="status"></p>
+    <p class="exnote" id="exNote" hidden>Os preços na tela são de exemplo, inventados só para testar. Clique em Limpar preços para começar do zero.</p>
+    <div class="tools">
+      <button class="btn" id="exBtn" type="button">Ver exemplo</button>
+      <button class="btn" id="clearBtn" type="button">Limpar preços</button>
+    </div>
+  </section>
+
+  <div class="tablewrap">
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th class="prod" scope="col">Produto</th>
+          <th class="qty" scope="col">Qtd</th>
+          <th class="mkh" data-i="0" scope="col"></th><th class="mkh" data-i="1" scope="col"></th><th class="mkh" data-i="2" scope="col"></th>
+          <th class="mkh" data-i="3" scope="col"></th><th class="mkh" data-i="4" scope="col"></th><th class="mkh" data-i="5" scope="col"></th>
+          <th class="win" scope="col">Mais barato</th>
+          <th class="rmh" scope="col"><span class="sr">Remover</span></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+      <tfoot>
+        <tr class="tot t1">
+          <th class="prod" colspan="2" scope="row">Total dos itens em comum</th>
+          <td class="tv" data-i="0"></td><td class="tv" data-i="1"></td><td class="tv" data-i="2"></td>
+          <td class="tv" data-i="3"></td><td class="tv" data-i="4"></td><td class="tv" data-i="5"></td>
+          <td class="win"></td><td></td>
+        </tr>
+        <tr class="tot t2">
+          <th class="prod" colspan="2" scope="row">Total de tudo que tem preço</th>
+          <td class="tv" data-i="0"></td><td class="tv" data-i="1"></td><td class="tv" data-i="2"></td>
+          <td class="tv" data-i="3"></td><td class="tv" data-i="4"></td><td class="tv" data-i="5"></td>
+          <td class="win"></td><td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <p class="foot">O preço é por embalagem (por exemplo, arroz de 5 kg) e a quantidade multiplica. A comparação entre mercados usa só os produtos que têm preço em todos os mercados preenchidos, para ninguém levar vantagem por ter menos itens. Tudo fica salvo neste navegador.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Catálogo ---------- */
+  // "Nome da embalagem|quantidade sugerida"
+  var CATALOG = {
+    'Mercearia': ['Arroz branco 5 kg|2', 'Feijão carioca 1 kg|2', 'Feijão preto 1 kg', 'Macarrão espaguete 500 g|3', 'Macarrão parafuso 500 g', 'Açúcar refinado 1 kg|2', 'Sal refinado 1 kg', 'Óleo de soja 900 ml|2', 'Azeite de oliva 500 ml', 'Farinha de trigo 1 kg', 'Farinha de mandioca 1 kg', 'Fubá 500 g', 'Goma de tapioca 1 kg', 'Molho de tomate 340 g|2', 'Extrato de tomate 300 g', 'Milho verde em lata 170 g', 'Sardinha em lata 125 g', 'Atum em lata 170 g', 'Vinagre 750 ml', 'Maionese 500 g', 'Ketchup 380 g', 'Café torrado 500 g', 'Achocolatado em pó 400 g', 'Leite condensado 395 g', 'Creme de leite 200 g'],
+    'Padaria e matinais': ['Pão de forma 500 g', 'Pão francês 1 kg', 'Biscoito cream cracker 400 g', 'Biscoito maisena 400 g', 'Biscoito recheado 140 g', 'Cereal matinal 300 g', 'Aveia em flocos 200 g', 'Margarina 500 g'],
+    'Hortifrúti': ['Tomate 1 kg', 'Cebola 1 kg', 'Batata inglesa 1 kg', 'Cenoura 1 kg', 'Alho 100 g', 'Pimentão verde 1 kg', 'Repolho 1 kg', 'Alface unidade', 'Coentro maço', 'Macaxeira 1 kg', 'Inhame 1 kg', 'Banana prata 1 kg', 'Maçã 1 kg', 'Laranja 1 kg', 'Limão 1 kg', 'Mamão 1 kg', 'Abacaxi unidade'],
+    'Carnes e ovos': ['Ovos cartela 30 un', 'Peito de frango 1 kg|2', 'Frango inteiro 1 kg', 'Coxa e sobrecoxa 1 kg', 'Carne moída 1 kg', 'Acém 1 kg', 'Charque 500 g', 'Linguiça toscana 1 kg', 'Filé de tilápia 1 kg'],
+    'Laticínios e frios': ['Leite integral 1 L|6', 'Leite em pó 400 g', 'Manteiga 200 g', 'Requeijão 200 g', 'Iogurte natural 170 g', 'Queijo mussarela 1 kg', 'Queijo coalho 1 kg', 'Presunto 1 kg', 'Mortadela 1 kg'],
+    'Bebidas': ['Refrigerante 2 L|2', 'Suco de caixinha 1 L', 'Água mineral 1,5 L', 'Cerveja lata 350 ml', 'Água de coco 1 L'],
+    'Limpeza': ['Detergente 500 ml|3', 'Sabão em pó 1 kg', 'Sabão em barra 5 un', 'Amaciante 2 L', 'Água sanitária 2 L', 'Desinfetante 2 L', 'Multiuso 500 ml', 'Esponja de cozinha 3 un', 'Papel toalha 2 rolos', 'Saco de lixo 30 L'],
+    'Higiene': ['Papel higiênico 12 rolos', 'Sabonete 85 g', 'Shampoo 350 ml', 'Condicionador 350 ml', 'Creme dental 90 g', 'Desodorante 150 ml', 'Escova de dente unidade', 'Absorvente pacote']
+  };
+  var STARTER = ['Arroz branco 5 kg', 'Feijão carioca 1 kg', 'Macarrão espaguete 500 g', 'Açúcar refinado 1 kg', 'Óleo de soja 900 ml', 'Café torrado 500 g', 'Leite integral 1 L', 'Farinha de mandioca 1 kg', 'Ovos cartela 30 un', 'Peito de frango 1 kg', 'Tomate 1 kg', 'Cebola 1 kg', 'Detergente 500 ml', 'Sabão em pó 1 kg', 'Papel higiênico 12 rolos', 'Refrigerante 2 L'];
+  // Valores inventados só para testar a página (centavos, mercados 1 a 3).
+  var EXAMPLE = {
+    'Arroz branco 5 kg': [2490, 2350, 2540], 'Feijão carioca 1 kg': [799, 849, 769],
+    'Macarrão espaguete 500 g': [389, 369, 419], 'Açúcar refinado 1 kg': [449, 429, 469],
+    'Óleo de soja 900 ml': [699, 729, 719], 'Café torrado 500 g': [1790, 1850, 1699],
+    'Leite integral 1 L': [479, 459, 499], 'Farinha de mandioca 1 kg': [649, 599, 689],
+    'Ovos cartela 30 un': [2190, 2290, 2050], 'Peito de frango 1 kg': [1690, 1599, null],
+    'Tomate 1 kg': [699, 749, 599], 'Cebola 1 kg': [499, 549, 479],
+    'Detergente 500 ml': [199, 219, 189], 'Sabão em pó 1 kg': [1190, 1099, 1249],
+    'Papel higiênico 12 rolos': [1790, 1690, 1850], 'Refrigerante 2 L': [799, 849, 749]
+  };
+  var CATS = Object.keys(CATALOG);
+
+  /* ---------- Utilidades ---------- */
+  function $(s) { return document.querySelector(s); }
+  function norm(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); }
+  function slug(s) { return norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+  function fmt(c) { return BRL.format(c / 100); }
+  function toInput(c) { return (c / 100).toFixed(2).replace('.', ','); }
+  function pct(a, b) { return (a / b * 100).toFixed(1).replace('.', ','); }
+  // Aceita "5,49", "5.49", "R$ 1.234,50". Devolve centavos ou null.
+  function parsePrice(v) {
+    if (v == null) return null;
+    var s = String(v).replace(/[R$\s]/gi, '');
+    if (!s) return null;
+    if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+    var n = Number(s);
+    if (!isFinite(n) || n <= 0 || n >= 100000) return null;
+    return Math.round(n * 100);
+  }
+
+  /* ---------- Dados ---------- */
+  var CAT = new Map();
+  CATS.forEach(function (cat) {
+    CATALOG[cat].forEach(function (raw) {
+      var parts = raw.split('|'), name = parts[0], id = slug(name);
+      CAT.set(id, { id: id, name: name, cat: cat, qty: parts[1] ? +parts[1] : 1, n: norm(name), nc: norm(cat) });
+    });
+  });
+  function addCustom(c) { CAT.set(c.id, { id: c.id, name: c.name, cat: c.cat, qty: 1, n: norm(c.name), nc: norm(c.cat) }); }
+
+  var KEY = 'mercado:v1';
+  var state;
+  function blank() { return ['', '', '', '', '', '']; }
+  function newItem(id) { var p = CAT.get(id); return { id: id, qty: p ? p.qty : 1, p: blank() }; }
+  function defaultState() {
+    return {
+      markets: ['Assaí', 'Atacadão', 'Novo Atacarejo', '', '', ''],
+      items: STARTER.map(function (n) { return newItem(slug(n)); }),
+      custom: [], example: false
+    };
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return defaultState();
+      var s = JSON.parse(raw);
+      if (!s || !Array.isArray(s.markets) || s.markets.length !== 6 || !Array.isArray(s.items)) return defaultState();
+      s.markets = s.markets.map(function (m) { return String(m || '').slice(0, 30); });
+      s.custom = (Array.isArray(s.custom) ? s.custom : []).filter(function (c) { return c && c.id && c.name && CATS.indexOf(c.cat) >= 0; });
+      s.custom.forEach(addCustom);
+      s.items = s.items.filter(function (it) { return it && CAT.has(it.id) && Array.isArray(it.p); }).map(function (it) {
+        var p = blank(); for (var i = 0; i < 6; i++) p[i] = String(it.p[i] == null ? '' : it.p[i]);
+        return { id: it.id, qty: Math.max(1, Math.min(999, parseInt(it.qty, 10) || 1)), p: p };
+      });
+      s.example = !!s.example;
+      return s;
+    } catch (e) { return defaultState(); }
+  }
+  var saveTimer;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* sem armazenamento */ } }, 250);
+  }
+  function qtyOf(it) { var q = parseInt(it.qty, 10); return q >= 1 ? Math.min(q, 999) : 1; }
+  function inList(id) { return state.items.some(function (it) { return it.id === id; }); }
+
+  /* ---------- Mercados ---------- */
+  function renderMarkets() {
+    $('#mkGrid').innerHTML = state.markets.map(function (n, i) {
+      var ph = i < 3 ? 'Nome do mercado' : (i === 3 ? 'Ex.: Mercado de bairro' : 'Escreva o nome');
+      return '<div class="mk"><label for="mk' + i + '">Mercado ' + (i + 1) + '</label>' +
+        '<input id="mk' + i + '" data-i="' + i + '" type="text" maxlength="30" autocomplete="off" value="' + esc(n) + '" placeholder="' + ph + '"></div>';
+    }).join('');
+  }
+  $('#mkGrid').addEventListener('input', function (e) {
+    var i = e.target.dataset.i; if (i == null) return;
+    state.markets[+i] = e.target.value; derive(); save();
+  });
+
+  /* ---------- Tabela ---------- */
+  function rowHtml(it) {
+    var p = CAT.get(it.id);
+    var h = '<tr class="item" data-id="' + esc(it.id) + '"><td class="prod"><span class="pname">' + esc(p.name) + '</span></td>';
+    h += '<td class="qty"><input id="q-' + esc(it.id) + '" data-k="qty" type="number" inputmode="numeric" min="1" max="999" step="1" value="' + qtyOf(it) + '" aria-label="Quantidade de ' + esc(p.name) + '"></td>';
+    for (var i = 0; i < 6; i++) {
+      h += '<td class="price" data-i="' + i + '"><input id="p-' + esc(it.id) + '-' + i + '" data-k="price" data-i="' + i + '" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" value="' + esc(it.p[i]) + '"></td>';
+    }
+    h += '<td class="win"><div class="winbox"></div></td>';
+    h += '<td class="rm"><button type="button" class="x" data-k="rm" aria-label="Remover ' + esc(p.name) + '">&times;</button></td></tr>';
+    return h;
+  }
+  function renderTable() {
+    var html = [];
+    CATS.forEach(function (c) {
+      var list = state.items.filter(function (it) { return CAT.get(it.id).cat === c; });
+      if (!list.length) return;
+      var h = '<tr class="cat"><td class="catname" colspan="2">' + esc(c) + '<small>' + list.length + (list.length === 1 ? ' item' : ' itens') + '</small></td>';
+      for (var i = 0; i < 6; i++) h += '<td class="mkn" data-i="' + i + '"></td>';
+      h += '<td colspan="2"></td></tr>';
+      html.push(h);
+      list.forEach(function (it) { html.push(rowHtml(it)); });
+    });
+    if (!state.items.length) html.push('<tr class="empty"><td colspan="10">A lista está vazia. Use o campo acima para adicionar produtos.</td></tr>');
+    $('#tbody').innerHTML = html.join('');
+    derive();
+  }
+
+  var tbody = $('#tbody');
+  tbody.addEventListener('input', function (e) {
+    var t = e.target, tr = t.closest('tr.item'); if (!tr) return;
+    var it = state.items.find(function (x) { return x.id === tr.dataset.id; }); if (!it) return;
+    if (t.dataset.k === 'qty') { it.qty = Math.max(1, Math.min(999, parseInt(t.value, 10) || 1)); }
+    else if (t.dataset.k === 'price') { it.p[+t.dataset.i] = t.value; t.classList.remove('bad'); t.removeAttribute('aria-invalid'); }
+    derive(); save();
+  });
+  tbody.addEventListener('focusout', function (e) {
+    var t = e.target; if (t.dataset.k !== 'price') return;
+    var tr = t.closest('tr.item'); var it = state.items.find(function (x) { return x.id === tr.dataset.id; }); if (!it) return;
+    var c = parsePrice(t.value);
+    if (c !== null) { var s = toInput(c); t.value = s; it.p[+t.dataset.i] = s; }
+    else if (t.value.trim() !== '') { t.classList.add('bad'); t.setAttribute('aria-invalid', 'true'); }
+    derive(); save();
+  });
+  tbody.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-k="rm"]'); if (!b) return;
+    var id = b.closest('tr.item').dataset.id;
+    var idx = state.items.findIndex(function (x) { return x.id === id; }); if (idx < 0) return;
+    var removed = state.items.splice(idx, 1)[0];
+    renderTable(); save();
+    say('"' + CAT.get(id).name + '" removido.', function () {
+      state.items.splice(idx, 0, removed); renderTable(); save(); say('Item de volta na lista.');
+    });
+  });
+
+  /* ---------- Cálculo ---------- */
+  function winHtml(r, names) {
+    if (!r.n) return '<span class="none">—</span>';
+    var w = [];
+    r.c.forEach(function (v, i) { if (v !== null && v === r.min) w.push(names[i]); });
+    if (r.n === 1) return '<span class="w-name">' + esc(w[0]) + '</span><span class="w-sub">único preço · ' + fmt(r.min) + '</span>';
+    var diff = r.max - r.min;
+    if (diff === 0) return '<span class="w-name">Empate</span><span class="w-sub">preços iguais · ' + fmt(r.min) + '</span>';
+    return '<span class="w-name">' + esc(w.join(' · ')) + '</span><span class="w-sub">' + fmt(r.min) + ' · poupa ' + fmt(diff) + '</span>';
+  }
+
+  function derive() {
+    var names = state.markets.map(function (n, i) { return n.trim() || ('Mercado ' + (i + 1)); });
+    document.querySelectorAll('th.mkh').forEach(function (th) {
+      var i = +th.dataset.i; th.textContent = names[i]; th.classList.toggle('unnamed', !state.markets[i].trim());
+    });
+    document.querySelectorAll('td.mkn').forEach(function (td) { td.textContent = names[+td.dataset.i]; });
+    document.querySelectorAll('td.tv').forEach(function (td) { td.dataset.mk = names[+td.dataset.i]; });
+
+    var rows = state.items.map(function (it) {
+      var c = it.p.map(parsePrice);
+      var v = c.filter(function (x) { return x !== null; });
+      return { it: it, c: c, q: qtyOf(it), n: v.length, min: v.length ? Math.min.apply(null, v) : null, max: v.length ? Math.max.apply(null, v) : null };
+    });
+    var byId = new Map(rows.map(function (r) { return [r.it.id, r]; }));
+
+    document.querySelectorAll('#tbody tr.item').forEach(function (tr) {
+      var r = byId.get(tr.dataset.id); if (!r) return;
+      var pname = CAT.get(r.it.id).name;
+      tr.querySelectorAll('td.price').forEach(function (td) {
+        var i = +td.dataset.i; td.dataset.mk = names[i];
+        td.firstElementChild.setAttribute('aria-label', 'Preço de ' + pname + ' no ' + names[i]);
+        td.classList.toggle('is-min', r.n >= 2 && r.max > r.min && r.c[i] === r.min);
+      });
+      tr.querySelector('.winbox').innerHTML = winHtml(r, names);
+    });
+
+    var comp = [];
+    for (var i = 0; i < 6; i++) { if (rows.some(function (r) { return r.c[i] !== null; })) comp.push(i); }
+    var common = comp.length >= 2 ? rows.filter(function (r) { return comp.every(function (j) { return r.c[j] !== null; }); }) : [];
+    var totals = comp.map(function (j) { return { i: j, t: common.reduce(function (s, r) { return s + r.c[j] * r.q; }, 0) }; }).sort(function (a, b) { return a.t - b.t; });
+    var best = totals.length && common.length ? totals[0].t : null;
+
+    var t1 = document.querySelectorAll('tr.t1 td.tv'), t2 = document.querySelectorAll('tr.t2 td.tv');
+    for (var k = 0; k < 6; k++) {
+      var tot = totals.find(function (x) { return x.i === k; });
+      var isBest = best !== null && tot && tot.t === best;
+      t1[k].classList.toggle('best', !!isBest);
+      t1[k].innerHTML = (comp.indexOf(k) >= 0 && common.length) ? fmt(tot.t) : '—';
+      var cnt = rows.filter(function (r) { return r.c[k] !== null; });
+      t2[k].innerHTML = cnt.length ? fmt(cnt.reduce(function (s, r) { return s + r.c[k] * r.q; }, 0)) + '<small>' + cnt.length + ' de ' + rows.length + ' itens</small>' : '—';
+    }
+    var wcell = document.querySelector('tr.t1 td.win');
+    wcell.innerHTML = best !== null ? '<span class="w-name">' + esc(totals.filter(function (x) { return x.t === best; }).map(function (x) { return names[x.i]; }).join(' · ')) + '</span>' : '';
+
+    renderResult(names, rows, comp, common, totals);
+
+    var any = rows.some(function (r) { return r.n > 0; });
+    $('#exBtn').hidden = any && !state.example;
+    $('#clearBtn').hidden = !any;
+    $('#exNote').hidden = !state.example;
+  }
+
+  function renderResult(names, rows, comp, common, totals) {
+    var el = $('#result'), h;
+    var priced = rows.filter(function (r) { return r.n > 0; });
+    function empty(title, text, withBtn) {
+      return '<div class="res-empty"><span class="eyebrow">Mais barato para a sua lista</span><h2 class="res-name sm">' + title + '</h2><p>' + text + '</p>' +
+        (withBtn ? '<button class="btn primary" type="button" data-act="example">Ver exemplo</button>' : '') + '</div>';
+    }
+    if (!priced.length) {
+      h = empty('Digite os preços para comparar', 'O resultado aparece aqui assim que dois mercados tiverem preço no mesmo produto. Cada vez que você digitar um preço novo, a conta é refeita.', !state.example);
+    } else if (comp.length < 2) {
+      h = empty('Falta preço em outro mercado', 'Só o ' + esc(names[comp[0]]) + ' tem preços até agora. Preencha o mesmo produto em pelo menos mais um mercado.', false);
+    } else if (!common.length) {
+      h = empty('Nenhum produto tem preço em todos', 'Mercados com preço: ' + comp.map(function (j) { return esc(names[j]); }).join(', ') + '. Complete pelo menos um produto em todos eles para comparar.', false);
+    } else {
+      var best = totals[0].t;
+      var winners = totals.filter(function (x) { return x.t === best; });
+      var second = totals.find(function (x) { return x.t > best; });
+      var split = common.reduce(function (s, r) { return s + r.min * r.q; }, 0);
+      var save = best - split;
+      var left = priced.length - common.length;
+      var title = winners.length > 1 ? 'Empate: ' + winners.map(function (x) { return esc(names[x.i]); }).join(' e ') : esc(names[winners[0].i]);
+      h = '<div class="res-head"><div><span class="eyebrow">Mais barato para a sua lista</span>' +
+        '<div class="res-line"><h2 class="res-name">' + title + '</h2><span class="pricetag">' + fmt(best) + '</span></div></div>' +
+        '<ol class="rank" aria-label="Ranking dos mercados">' + totals.map(function (x, n) {
+          var d = x.t > best ? '<span class="d">+' + fmt(x.t - best) + ' (' + pct(x.t - best, best) + '%)</span>' : '';
+          return '<li class="' + (x.t === best ? 'first' : '') + '"><b>' + (n + 1) + 'º</b> ' + esc(names[x.i]) + ' <span class="n">' + fmt(x.t) + '</span> ' + d + '</li>';
+        }).join('') + '</ol></div>';
+      var n1 = common.length + (common.length === 1 ? ' item com preço' : ' itens com preço') + ' em ' + comp.length + ' mercados';
+      h += '<p class="res-note">Comparação com ' + n1 + (second ? '. Economia de ' + fmt(second.t - best) + ' em relação ao ' + esc(names[second.i]) + ' (' + pct(second.t - best, best) + '%).' : '.') + '</p>';
+      var extra = [];
+      if (left > 0) extra.push(left + (left === 1 ? ' item ficou fora' : ' itens ficaram fora') + ' da comparação por falta de preço em algum mercado.');
+      if (save >= 1) extra.push('Comprando cada item no mercado onde ele é mais barato, o total seria ' + fmt(split) + ', ' + fmt(save) + ' a menos.');
+      if (extra.length) h += '<p class="res-note">' + extra.join(' ') + '</p>';
+    }
+    el.innerHTML = h;
+  }
+  $('#result').addEventListener('click', function (e) { if (e.target.closest('[data-act="example"]')) loadExample(); });
+
+  /* ---------- Mensagens ---------- */
+  var undoFn = null;
+  function say(msg, undo) {
+    var st = $('#status'); undoFn = undo || null;
+    st.innerHTML = esc(msg) + (undo ? '<button type="button" class="link" id="undoBtn">Desfazer</button>' : '');
+  }
+  $('#status').addEventListener('click', function (e) {
+    if (e.target.id === 'undoBtn' && undoFn) { var f = undoFn; undoFn = null; f(); }
+  });
+
+  /* ---------- Busca e adição ---------- */
+  var q = $('#q'), sug = $('#sug'), matches = [], active = -1;
+  $('#newCat').innerHTML = CATS.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('');
+
+  function search(text) {
+    var toks = norm(text).split(/\s+/).filter(Boolean), out = [];
+    if (!toks.length) return out;
+    CAT.forEach(function (p) {
+      var ok = true, score = 0;
+      for (var k = 0; k < toks.length; k++) {
+        var i = p.n.indexOf(toks[k]);
+        if (i < 0 && p.nc.indexOf(toks[k]) < 0) { ok = false; break; }
+        score += i === 0 ? 0 : (i > 0 && p.n.charAt(i - 1) === ' ') ? 1 : i > 0 ? 3 : 5;
+      }
+      if (ok) out.push({ p: p, score: score });
+    });
+    out.sort(function (a, b) { return a.score - b.score || a.p.name.localeCompare(b.p.name, 'pt-BR'); });
+    return out.slice(0, 8).map(function (x) { return x.p; });
+  }
+  function setActive(i) {
+    active = i;
+    sug.querySelectorAll('li').forEach(function (li, k) { li.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+    if (i >= 0) { q.setAttribute('aria-activedescendant', 'opt' + i); var li = sug.children[i]; if (li && li.scrollIntoView) li.scrollIntoView({ block: 'nearest' }); }
+    else q.removeAttribute('aria-activedescendant');
+  }
+  function renderSug() {
+    var text = q.value.trim();
+    matches = search(text);
+    if (!text || !matches.length) { sug.hidden = true; q.setAttribute('aria-expanded', 'false'); active = -1; }
+    else {
+      sug.innerHTML = matches.map(function (p, k) {
+        var on = inList(p.id);
+        return '<li role="option" id="opt' + k + '" data-id="' + esc(p.id) + '" aria-selected="false"' + (on ? ' aria-disabled="true"' : '') + ' class="' + (on ? 'in' : '') + '"><span>' + esc(p.name) + '</span><small>' + esc(p.cat) + (on ? ' · na lista' : '') + '</small></li>';
+      }).join('');
+      sug.hidden = false; q.setAttribute('aria-expanded', 'true');
+      var first = matches.findIndex(function (p) { return !inList(p.id); });
+      setActive(first);
+    }
+    var exact = text && Array.from(CAT.values()).some(function (p) { return p.n === norm(text); });
+    var showCreate = text.length >= 2 && !exact;
+    $('#createRow').hidden = !showCreate;
+    if (showCreate) $('#newName').textContent = '“' + text + '”';
+  }
+  function flash(id) {
+    var tr = tbody.querySelector('tr[data-id="' + id + '"]'); if (!tr) return;
+    tr.classList.add('flash'); setTimeout(function () { tr.classList.remove('flash'); }, 1500);
+  }
+  function addItem(id) {
+    var p = CAT.get(id);
+    if (inList(id)) { say(p.name + ' já está na lista.'); return; }
+    state.items.push(newItem(id)); renderTable(); save(); flash(id);
+    q.value = ''; renderSug(); say(p.name + ' adicionado em ' + p.cat + '. Digite o próximo ou preencha os preços na tabela.');
+  }
+  function createProduct() {
+    var name = q.value.trim().replace(/\s+/g, ' ').slice(0, 60); if (!name) return;
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+    var found = null; CAT.forEach(function (p) { if (p.n === norm(name)) found = p; });
+    if (found) { addItem(found.id); return; }
+    var c = { id: 'x-' + Date.now().toString(36), name: name, cat: $('#newCat').value };
+    state.custom.push(c); addCustom(c); addItem(c.id);
+  }
+  q.addEventListener('input', renderSug);
+  q.addEventListener('focus', function () { if (q.value.trim()) renderSug(); });
+  q.addEventListener('blur', function () { setTimeout(function () { sug.hidden = true; q.setAttribute('aria-expanded', 'false'); }, 120); });
+  q.addEventListener('keydown', function (e) {
+    var open = !sug.hidden && matches.length;
+    if (e.key === 'ArrowDown' && open) { e.preventDefault(); setActive((active + 1) % matches.length); }
+    else if (e.key === 'ArrowUp' && open) { e.preventDefault(); setActive((active - 1 + matches.length) % matches.length); }
+    else if (e.key === 'Escape') { sug.hidden = true; q.setAttribute('aria-expanded', 'false'); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (open && active >= 0) addItem(matches[active].id);
+      else if (open) say('Esses produtos já estão na lista.');
+      else if (q.value.trim().length >= 2) createProduct();
+    }
+  });
+  sug.addEventListener('mousedown', function (e) {
+    e.preventDefault();
+    var li = e.target.closest('li'); if (li && !li.classList.contains('in')) addItem(li.dataset.id);
+  });
+  $('#newBtn').addEventListener('click', function () { createProduct(); q.focus(); });
+
+  /* ---------- Exemplo e limpeza ---------- */
+  function loadExample() {
+    Object.keys(EXAMPLE).forEach(function (name) {
+      var id = slug(name), it = state.items.find(function (x) { return x.id === id; });
+      if (!it) { it = newItem(id); state.items.push(it); }
+      EXAMPLE[name].forEach(function (c, i) { it.p[i] = c == null ? '' : toInput(c); });
+    });
+    ['Assaí', 'Atacadão', 'Novo Atacarejo'].forEach(function (n, i) { if (!state.markets[i].trim()) state.markets[i] = n; });
+    state.example = true; renderMarkets(); renderTable(); save();
+    say('Preços de exemplo carregados. Altere qualquer valor para ver a comparação mudar.');
+  }
+  $('#exBtn').addEventListener('click', loadExample);
+  var clearTimer, clearArmed = false;
+  $('#clearBtn').addEventListener('click', function () {
+    var b = this;
+    if (!clearArmed) {
+      clearArmed = true; b.textContent = 'Tem certeza? Clique de novo';
+      clearTimer = setTimeout(function () { clearArmed = false; b.textContent = 'Limpar preços'; }, 4000);
+      return;
+    }
+    clearTimeout(clearTimer); clearArmed = false; b.textContent = 'Limpar preços';
+    state.items.forEach(function (it) { it.p = blank(); }); state.example = false;
+    renderTable(); save(); say('Preços apagados. A lista de produtos continua.');
+  });
+
+  /* ---------- Início ---------- */
+  state = load();
+  renderMarkets();
+  renderTable();
+})();
+</script>
