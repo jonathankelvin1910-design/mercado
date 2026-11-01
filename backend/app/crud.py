@@ -29,14 +29,13 @@ def listar_categorias(db: Session):
 
 def buscar_produtos(db: Session, busca: str):
     """Retorna uma lista de dicionários com produtos que correspondem à busca."""
-    na_lista = select(ListaItem.produto_id)
+    ids_na_lista = set(db.scalars(select(ListaItem.produto_id)).all())
 
     stmt = (
         select(Produto)
         .join(Categoria, Produto.categoria_id == Categoria.id)
         .where(
             Produto.nome.ilike(f"%{busca}%"),
-            Produto.id.in_(na_lista),
         )
         .order_by(Produto.nome)
         .limit(8)
@@ -50,7 +49,7 @@ def buscar_produtos(db: Session, busca: str):
             "categoria_id": produto.categoria_id,
             "categoria_nome": produto.categoria.nome,
             "quantidade_sugerida": produto.quantidade_sugerida,
-            "na_lista": True,
+            "na_lista": produto.id in ids_na_lista,
         }
         for produto in produtos
     ]
