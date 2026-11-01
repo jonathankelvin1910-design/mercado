@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Annotated, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 
 class MercadoOut(BaseModel):
@@ -9,15 +9,19 @@ class MercadoOut(BaseModel):
     posicao: int
     nome: str
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class MercadoUpdate(BaseModel):
-    nome: Annotated[str, Field(min_length=0, max_length=30, strip=True)]
+    nome: Annotated[str, StringConstraints(strip_whitespace=True, min_length=0, max_length=30)]
 
 
 class CategoriaOut(BaseModel):
     id: int
     nome: str
     ordem: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ProdutoOut(BaseModel):
@@ -30,7 +34,7 @@ class ProdutoOut(BaseModel):
 
 
 class ProdutoCreate(BaseModel):
-    nome: Annotated[str, Field(min_length=2, max_length=80, strip=True)]
+    nome: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=80)]
     categoria_id: int
 
 
@@ -39,7 +43,7 @@ class ListaAdd(BaseModel):
 
 
 class ListaQuantidade(BaseModel):
-    quantidade: int
+    quantidade: Annotated[int, Field(ge=1, le=999)]
 
 
 class PrecoSet(BaseModel):
