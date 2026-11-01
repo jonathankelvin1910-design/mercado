@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.crud import atualizar_nome_mercado
+from app.crud import atualizar_nome_mercado, listar_mercados
 from app.database import get_db
-from app.models import Mercado
 from app.schemas import MercadoOut, MercadoUpdate
 
 router = APIRouter(prefix="/mercados", tags=["mercados"])
 
 
 @router.get("/", response_model=list[MercadoOut])
-def listar_mercados(db=Depends(get_db)):
+def listar(db=Depends(get_db)):
     return listar_mercados(db)
 
 
