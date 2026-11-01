@@ -17,7 +17,7 @@ def listar(busca: str = "", db=Depends(get_db)):
 @router.post("/", response_model=ProdutoOut, status_code=201)
 def criar(payload: ProdutoCreate, db=Depends(get_db)):
     try:
-        produto = criar_produto(db, payload.model_dump())
+        produto = criar_produto(db, payload)
     except ValueError as exc:
         if exc.args and exc.args[0] == "nome_existente":
             raise HTTPException(status_code=409, detail="Nome já existe")
