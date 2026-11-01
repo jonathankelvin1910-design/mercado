@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from app.models import Categoria, ListaItem, Mercado, Produto
@@ -53,3 +53,26 @@ def buscar_produtos(db: Session, busca: str):
         }
         for produto in produtos
     ]
+
+
+def criar_produto(db: Session, dados):
+    """Cria um novo produto."""
+    produto_existente = db.scalars(
+        select(Produto).where(func.lower(Produto.nome) == func.lower(dados.nome))
+    ).first()
+    if produto_existente is not None:
+        raise ValueError("nome_existente")
+
+    categoria = db.get(Categoria, dados.categoria_id)
+    if categoria is None:
+        raise ValueError("categoria_inexistente")
+
+    produto = Produto(
+        nome=dados.nome,
+        categoria_id=dados.categoria_id,
+        quantidade_sugerida=1,
+    )
+    db.add(produto)
+    db.commit()
+    db.refresh(produto)
+    return produto
