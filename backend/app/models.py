@@ -1,13 +1,12 @@
-from datetime import datetime
-
 from sqlalchemy import (
+    TIMESTAMP,
     Column,
+    ForeignKey,
     Integer,
+    Numeric,
     SmallInteger,
     String,
-    Numeric,
-    DateTime,
-    ForeignKey,
+    func,
 )
 from sqlalchemy.orm import relationship
 
@@ -35,11 +34,7 @@ class Produto(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String(80), nullable=False, unique=True)
-    categoria_id = Column(
-        Integer,
-        nullable=False,
-        ForeignKey("categorias.id"),
-    )
+    categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
     quantidade_sugerida = Column(Integer, nullable=False, default=1)
 
     categoria = relationship("Categoria")
@@ -49,12 +44,10 @@ class ListaItem(Base):
     __tablename__ = "lista_itens"
 
     produto_id = Column(
-        Integer,
-        primary_key=True,
-        ForeignKey("produtos.id"),
+        Integer, ForeignKey("produtos.id", ondelete="CASCADE"), primary_key=True
     )
     quantidade = Column(Integer, nullable=False, default=1)
-    criado_em = Column(DateTime, nullable=False, default=datetime.now)
+    criado_em = Column(TIMESTAMP, nullable=False, server_default=func.now())
 
     produto = relationship("Produto")
 
@@ -63,14 +56,10 @@ class Preco(Base):
     __tablename__ = "precos"
 
     produto_id = Column(
-        Integer,
-        primary_key=True,
-        ForeignKey("produtos.id"),
+        Integer, ForeignKey("produtos.id", ondelete="CASCADE"), primary_key=True
     )
     mercado_id = Column(
-        Integer,
-        primary_key=True,
-        ForeignKey("mercados.id"),
+        Integer, ForeignKey("mercados.id", ondelete="CASCADE"), primary_key=True
     )
     valor = Column(Numeric(10, 2), nullable=False)
 
