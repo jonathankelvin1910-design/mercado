@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
-from app.models import Categoria, ListaItem, Mercado, Produto
+from app.models import Categoria, ListaItem, Mercado, Preco, Produto
 
 
 def listar_mercados(db: Session):
@@ -76,3 +76,73 @@ def criar_produto(db: Session, dados):
     db.commit()
     db.refresh(produto)
     return produto
+
+
+def listar_lista(db: Session):
+    """Retorna os itens da lista de compras ordenados por categoria e nome do produto."""
+    stmt = (
+        select(ListaItem, Produto, Categoria)
+        .join(Produto, ListaItem.produto_id == Produto.id)
+        .join(Categoria, Produto.categoria_id == Categoria.id)
+        .order_by(Categoria.ordem, Produto.nome)
+    )
+    itens = db.scalars(stmt).all()
+
+    resultado = []
+    for item, produto, categoria in itens:
+        precos = {
+            preco.mercado_id: preco.valor
+            for preco in db.scalars(
+                select(Preco).where(Preco.produto_id == produto.id)
+            ).all()
+        }
+        resultado.append(
+            {
+                "produto_id": item.produto_id,
+                "nome": produto.nome,
+                "categoria_id": categoria.id,
+                "categoria_nome": categoria.nome,
+                "categoria_ordem": categoria.ordem,
+                "quantidade": item.quantidade,
+                "precos": precos,
+            }
+        )
+    return resultado
+
+
+def adicionar_na_lista(db: Session, produto_id: int):
+    """Adiciona um produto à lista usando a quantidade_sugerida."""
+    produto = db.get(Produto, produto_id)
+    if produto is None:
+        raise ValueError("produto_inexistente")
+
+    item = db.get(ListaItem, produto_id)
+    if item is not None:
+        raise ValueError("ja_na_lista")
+
+    item = ListaItem(produto_id=produto_id, quantidade=produto.quantidade_sugerida)
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+def alterar_quantidade(db: Session, produto_id: int, quantidade: int):
+    """Atualiza a quantidade de um produto na lista. Retorna o item atualizado ou None."""
+    item = db.get(ListaItem, produto_id)
+    if item is None:
+        return None
+    item.quantidade = quantidade
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+def remover_da_lista(db: Session, produto_id: int) -> bool:
+    """Remove um produto da lista. Retorna True se removeu, False se não estava na lista."""
+    item = db.get(ListaItem, produto_id)
+    if item is None:
+        return False
+    db.delete(item)
+    db.commit()
+    return True
