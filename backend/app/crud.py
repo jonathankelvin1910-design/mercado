@@ -86,7 +86,7 @@ def listar_lista(db: Session):
         .join(Categoria, Produto.categoria_id == Categoria.id)
         .order_by(Categoria.ordem, Produto.nome)
     )
-    itens = db.scalars(stmt).all()
+    itens = db.execute(stmt).all()
 
     resultado = []
     for item, produto, categoria in itens:
