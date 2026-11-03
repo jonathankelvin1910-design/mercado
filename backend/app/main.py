@@ -9,6 +9,7 @@ from app.routers import (
     router_produtos,
     router_lista,
     router_precos,
+    router_comparacao,
 )
 
 Base.metadata.create_all(bind=engine)
@@ -27,6 +28,7 @@ app.include_router(router_categorias)
 app.include_router(router_produtos)
 app.include_router(router_lista)
 app.include_router(router_precos)
+app.include_router(router_comparacao)
 
 
 @app.get("/health")
