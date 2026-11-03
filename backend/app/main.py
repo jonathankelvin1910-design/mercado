@@ -3,7 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine
 from app.models import Base
-from app.routers import router_mercados, router_categorias, router_produtos, router_lista
+from app.routers import (
+    router_mercados,
+    router_categorias,
+    router_produtos,
+    router_lista,
+    router_precos,
+)
 
 Base.metadata.create_all(bind=engine)
 
@@ -20,6 +26,7 @@ app.include_router(router_mercados)
 app.include_router(router_categorias)
 app.include_router(router_produtos)
 app.include_router(router_lista)
+app.include_router(router_precos)
 
 
 @app.get("/health")

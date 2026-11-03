@@ -146,3 +146,44 @@ def remover_da_lista(db: Session, produto_id: int) -> bool:
     db.delete(item)
     db.commit()
     return True
+
+
+def definir_preco(db: Session, produto_id: int, mercado_id: int, valor):
+    """Define o preço de um produto em um mercado.
+
+    Levanta ValueError("produto_inexistente") se o produto não existir e
+    ValueError("mercado_inexistente") se o mercado não existir. Se valor for None,
+    remove o registro de preço (se existir) e devolve None. Caso contrário, faz
+    upsert (atualiza o valor se o registro existir, ou cria um novo), faz commit e
+    devolve o Preco.
+    """
+    produto = db.get(Produto, produto_id)
+    if produto is None:
+        raise ValueError("produto_inexistente")
+
+    mercado = db.get(Mercado, mercado_id)
+    if mercado is None:
+        raise ValueError("mercado_inexistente")
+
+    if valor is None:
+        preco = db.get(Preco, (produto_id, mercado_id))
+        if preco is not None:
+            db.delete(preco)
+            db.commit()
+        return None
+
+    preco = db.get(Preco, (produto_id, mercado_id))
+    if preco is None:
+        preco = Preco(produto_id=produto_id, mercado_id=mercado_id, valor=valor)
+        db.add(preco)
+    else:
+        preco.valor = valor
+    db.commit()
+    db.refresh(preco)
+    return preco
+
+
+def apagar_todos_precos(db: Session):
+    """Apaga todos os registros de preço e faz commit."""
+    db.query(Preco).delete()
+    db.commit()
