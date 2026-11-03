@@ -46,6 +46,16 @@ class ListaQuantidade(BaseModel):
     quantidade: Annotated[int, Field(ge=1, le=999)]
 
 
+class ListaItemOut(BaseModel):
+    produto_id: int
+    nome: str
+    categoria_id: int
+    categoria_nome: str
+    categoria_ordem: int
+    quantidade: int
+    precos: dict[int, float]
+
+
 class PrecoSet(BaseModel):
     produto_id: int
     mercado_id: int
