@@ -32,6 +32,9 @@ export default function Resultado({ comparacao, totalItens }) {
   const empate = comparacao.vencedores.length > 1
   const prefixo = empate ? 'Empate: ' : 'Mais barato: '
 
+  const mostraItensFora = comparacao.itens_fora > 0
+  const mostraEconomia = Number(comparacao.economia_dividindo) > 0
+
   return (
     <section className="resultado">
       <div className="faixa">
@@ -70,6 +73,23 @@ export default function Resultado({ comparacao, totalItens }) {
           </li>
         ))}
       </ol>
+
+      {(mostraItensFora || mostraEconomia) && (
+        <div className="notas">
+          {mostraItensFora && (
+            <p>
+              {comparacao.itens_fora === 1
+                ? '1 item tem preço, mas ficou fora da comparação porque falta preço em algum mercado.'
+                : `${comparacao.itens_fora} itens têm preço, mas ficaram fora da comparação porque falta preço em algum mercado.`}
+            </p>
+          )}
+          {mostraEconomia && (
+            <p>
+              Dividindo a compra entre os mercados mais baratos de cada item, o total dos itens em comum cai para {formatarMoeda(Number(comparacao.compra_dividida))} (economia de {formatarMoeda(Number(comparacao.economia_dividindo))}).
+            </p>
+          )}
+        </div>
+      )}
     </section>
   )
 }
