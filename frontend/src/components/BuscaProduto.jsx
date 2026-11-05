@@ -1,13 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { getProdutos } from '../api/api'
 
-export default function BuscaProduto({ onAdicionar }) {
+export default function BuscaProduto({ onAdicionar, categorias, onCriar }) {
   const [texto, setTexto] = useState('')
   const [sugestoes, setSugestoes] = useState([])
   const [ativa, setAtiva] = useState(-1)
   const [aberta, setAberta] = useState(false)
+  const [categoriaNova, setCategoriaNova] = useState('')
 
   const inputRef = useRef(null)
+
+  useEffect(() => {
+    if (categoriaNova === '' && categorias.length > 0) {
+      setCategoriaNova(categorias[0].id)
+    }
+  }, [categoriaNova, categorias])
 
   useEffect(() => {
     const semEspacos = texto.replace(/\s/g, '')
@@ -68,6 +75,21 @@ export default function BuscaProduto({ onAdicionar }) {
     inputRef.current?.focus()
   }
 
+  const textoLimpo = texto.trim().replace(/\s+/g, ' ')
+  const temNomeExato = sugestoes.some(
+    (p) => p.nome.toLowerCase() === textoLimpo.toLowerCase()
+  )
+  const mostrarProdutoNovo = textoLimpo.length >= 2 && !temNomeExato
+
+  const criar = () => {
+    onCriar(textoLimpo, Number(categoriaNova))
+    setTexto('')
+    setSugestoes([])
+    setAberta(false)
+    setAtiva(-1)
+    inputRef.current?.focus()
+  }
+
   const handleChange = (e) => setTexto(e.target.value)
 
   const handleTecla = (e) => {
@@ -81,7 +103,13 @@ export default function BuscaProduto({ onAdicionar }) {
       e.preventDefault()
       if (ativa !== -1) {
         const produto = sugestoes[ativa]
-        if (produto && !produto.na_lista) adicionar(produto)
+        if (produto && !produto.na_lista) {
+          adicionar(produto)
+        } else if (mostrarProdutoNovo) {
+          criar()
+        }
+      } else if (mostrarProdutoNovo) {
+        criar()
       }
     } else if (e.key === 'Escape') {
       e.preventDefault()
@@ -141,6 +169,30 @@ export default function BuscaProduto({ onAdicionar }) {
             </li>
           ))}
         </ul>
+      )}
+      {mostrarProdutoNovo && (
+        <div className="produto-novo">
+          <span>
+            Produto novo: <strong>{textoLimpo}</strong>
+          </span>
+          <label className="sr-only" htmlFor="categoria-nova">
+            Categoria do produto novo
+          </label>
+          <select
+            id="categoria-nova"
+            value={categoriaNova}
+            onChange={(e) => setCategoriaNova(e.target.value)}
+          >
+            {categorias.map((categoria) => (
+              <option key={categoria.id} value={categoria.id}>
+                {categoria.nome}
+              </option>
+            ))}
+          </select>
+          <button type="button" onClick={criar}>
+            Criar e adicionar
+          </button>
+        </div>
       )}
     </div>
   )
