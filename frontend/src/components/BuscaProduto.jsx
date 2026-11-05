@@ -49,7 +49,7 @@ export default function BuscaProduto({ onAdicionar }) {
     const pos = candidatos.indexOf(ativa)
     let idx
     if (direcao === 'baixo') {
-      idx = pos === -1 ? 0 : candidatos[(pos + 1) % candidatos.length]
+      idx = pos === -1 ? candidatos[0] : candidatos[(pos + 1) % candidatos.length]
     } else {
       idx =
         pos === -1
