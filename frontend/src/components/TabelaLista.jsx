@@ -198,7 +198,7 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
             })}
             <td className="mais-barato">
               <strong>
-                {vencedores.map((id) => getNomeMercado(id)).join(' · ')}
+                {vencedores.join(' · ')}
               </strong>
             </td>
             <td></td>
@@ -206,14 +206,13 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
           <tr className="total-preenchido">
             <th colSpan={2}>Total de tudo que tem preço</th>
             {mercados.map((mercado) => {
-              const total = comparacao?.totais_prenchidos?.[mercado.id]
-              const qtdPrenchida = itens.filter((item) => item.precos[mercado.id] != null).length
+              const tp = comparacao?.totais_preenchidos?.[mercado.id]
               return (
                 <td key={mercado.id}>
-                  {total != null ? (
-                    <>
-                      {formatarMoeda(total)}
-                      <small>{qtdPrenchida} de {itens.length} itens</small>
+                  {tp ? (
+<>
+{formatarMoeda(tp.total)}
+<small>{tp.itens} de {itens.length} itens</small>
                     </>
                   ) : '—'}
                 </td>

@@ -3,28 +3,22 @@ import { getProdutos } from '../api/api'
 
 export default function BuscaProduto({ onAdicionar, categorias = [], onCriar }) {
   const [texto, setTexto] = useState('')
-  const [sugestoes, setSugestoes] = useState([])
+  const [sugestoesBrutas, setSugestoes] = useState([])
   const [ativa, setAtiva] = useState(-1)
-  const [aberta, setAberta] = useState(false)
-  const [categoriaNova, setCategoriaNova] = useState('')
+  const [abertaBruta, setAberta] = useState(false)
+  const [categoriaSel, setCategoriaNova] = useState('')
 
   const inputRef = useRef(null)
 
-  useEffect(() => {
-    if (categoriaNova === '' && categorias.length > 0) {
-      setCategoriaNova(categorias[0].id)
-    }
-  }, [categoriaNova, categorias])
+  const categoriaNova = categoriaSel || (categorias[0]?.id ?? '')
+  const textoVazio = texto.replace(/\s/g, '').length < 1
+  const sugestoes = textoVazio ? [] : sugestoesBrutas
+  const aberta = !textoVazio && abertaBruta
 
   useEffect(() => {
     const semEspacos = texto.replace(/\s/g, '')
 
-    if (semEspacos.length < 1) {
-      setSugestoes([])
-      setAberta(false)
-      setAtiva(-1)
-      return
-    }
+    if (semEspacos.length < 1) return
 
     let cancelado = false
     getProdutos(texto)
