@@ -1,0 +1,148 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b1020;
+  --surface: #131a2e;
+  --surface-2: #1a2440;
+  --border: #26324f;
+  --text: #e6eaf5;
+  --muted: #8b97b5;
+  --accent: #6366f1;
+  --accent-hover: #7b7ef4;
+  --green: #22c55e;
+  --red: #ef4444;
+  --radius: 14px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, sans-serif;
+  line-height: 1.5;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 50% -200px, #1b2550 0%, var(--bg) 60%);
+}
+
+#root { width: 100%; max-width: none; margin: 0; padding: 0; border: none; text-align: left; }
+
+h1 { margin: 8px 0 24px; text-align: center; font-size: clamp(1.7rem, 3vw, 2.4rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { margin: 0 0 16px; font-size: 1.1rem; font-weight: 600; text-align: left; }
+h3 { margin: 0; font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.card, .panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.card { padding: 20px; text-align: left; }
+.card p { margin: 8px 0 0; font-size: 1.6rem; font-weight: 700; }
+.panel { padding: 20px; margin-top: 16px; }
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+  align-items: start;
+}
+
+label { display: block; color: var(--muted); font-size: 0.8rem; font-weight: 500; }
+
+input, select {
+  width: 100%;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25); }
+
+button {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+button:hover { border-color: var(--accent); }
+button[type='submit'] { background: var(--accent); border-color: var(--accent); color: #fff; }
+button[type='submit']:hover { background: var(--accent-hover); }
+.btn-danger { color: #fecaca; background: #3b1219; border-color: #7f1d1d; }
+.btn-danger:hover { border-color: var(--red); }
+
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 10px 12px; font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); }
+td { padding: 12px; border-bottom: 1px solid var(--border); }
+tbody tr:hover { background: var(--surface-2); }
+
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.badge-receita { color: var(--green); background: rgba(34, 197, 94, 0.12); }
+.badge-despesa { color: var(--red); background: rgba(239, 68, 68, 0.12); }
+
+/* Formulário de transação: grade alinhada (sobrescreve estilos inline) */
+.form-transacao { width: 100%; }
+.form-transacao h2 { margin-bottom: 16px; }
+.form-transacao > div {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px !important;
+  align-items: end !important;
+  justify-content: stretch !important;
+  width: 100%;
+}
+.form-transacao > div > div { width: 100%; min-width: 0; }
+.form-transacao > div > div:first-child { grid-column: 1 / -1; }
+.form-transacao > div > div:last-child { grid-column: 1 / -1; display: flex !important; flex-direction: row !important; gap: 10px !important; align-items: center !important; }
+.form-transacao > div > div:last-child button { flex: 1; padding: 11px 14px !important; }
+.form-transacao label { margin: 0; }
+
+/* Acabamento do formulário */
+input, select { height: 44px; }
+.form-transacao > div > button { grid-column: 1 / -1; width: 100%; padding: 11px 14px !important; }
+
+/* Painéis: formulário e gráfico no estilo de cartão */
+.grade { align-items: stretch; }
+.grade > .panel { margin-top: 0; }
+.form-transacao {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+.painel-grafico { height: 100%; }
+
+/* Selects e lista de opções legíveis no tema escuro */
+select,
+input,
+textarea {
+  color-scheme: dark;
+}
+
+select option {
+  background: var(--surface-2);
+  color: #e5e7eb;
+}
+
+select option:checked,
+select option:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Mensagens de erro dos campos */
+.erro-campo { color: var(--red, #ef4444); font-size: 0.75rem; margin-top: 2px; }
+
+/* Alinha os campos ao topo mesmo com mensagem de erro */
+.form-transacao > div { align-items: start !important; }
