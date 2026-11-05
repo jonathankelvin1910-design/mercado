@@ -20,28 +20,43 @@ export default function BuscaProduto({ onAdicionar }) {
     }
 
     let cancelado = false
-    getProdutos(texto).then((resultados) => {
-      if (cancelado) return
-      setSugestoes(resultados)
-      setAberta(true)
-      const indice = resultados.findIndex((p) => !p.na_lista)
-      setAtiva(indice === -1 ? -1 : indice)
-    })
+    getProdutos(texto)
+      .then((resultados) => {
+        if (cancelado) return
+        setSugestoes(resultados)
+        setAberta(true)
+        const indice = resultados.findIndex((p) => !p.na_lista)
+        setAtiva(indice)
+      })
+      .catch(() => {
+        if (!cancelado) {
+          setSugestoes([])
+          setAberta(false)
+          setAtiva(-1)
+        }
+      })
 
     return () => {
       cancelado = true
     }
-  }, [texto, getProdutos])
+  }, [texto])
 
   const moverAtiva = (direcao) => {
     const candidatos = sugestoes
       .map((_, i) => i)
       .filter((i) => !sugestoes[i].na_lista)
     if (candidatos.length === 0) return
-    let idx = direcao === 'baixo' ? ativa + 1 : ativa - 1
-    if (idx >= candidatos.length) idx = 0
-    if (idx < 0) idx = candidatos.length - 1
-    setAtiva(candidatos[idx])
+    const pos = candidatos.indexOf(ativa)
+    let idx
+    if (direcao === 'baixo') {
+      idx = pos === -1 ? 0 : candidatos[(pos + 1) % candidatos.length]
+    } else {
+      idx =
+        pos === -1
+          ? candidatos[candidatos.length - 1]
+          : candidatos[(pos - 1 + candidatos.length) % candidatos.length]
+    }
+    setAtiva(idx)
   }
 
   const adicionar = (produto) => {
@@ -96,9 +111,12 @@ export default function BuscaProduto({ onAdicionar }) {
         onChange={handleChange}
         onKeyDown={handleTecla}
         onFocus={handleFoco}
+        onBlur={() => setAberta(false)}
+        aria-expanded={aberta && sugestoes.length > 0}
+        aria-controls="sugestoes-produto"
       />
       {aberta && sugestoes.length > 0 && (
-        <ul className="sugestoes" role="listbox">
+        <ul className="sugestoes" id="sugestoes-produto" role="listbox">
           {sugestoes.map((produto, indice) => (
             <li
               key={produto.id}
