@@ -14,12 +14,13 @@ export default function Mercados({ mercados, onRenomear }) {
   useEffect(() => {
     mercados.forEach((mercado) => {
       const valor = valores[mercado.id]
-      if (valor !== mercado.nome) {
+      if (valor === undefined) return
+      if (valor.trim() !== mercado.nome) {
         if (timersRef.current[mercado.id]) {
           clearTimeout(timersRef.current[mercado.id])
         }
         timersRef.current[mercado.id] = setTimeout(() => {
-          onRenomear(mercado.id, valor)
+          onRenomear(mercado.id, valor.trim())
         }, 500)
       }
     })
@@ -49,7 +50,7 @@ export default function Mercados({ mercados, onRenomear }) {
               type="text"
               placeholder="Nome do mercado"
               maxLength={30}
-              value={valores[mercado.id] ?? ''}
+              value={valores[mercado.id] ?? mercado.nome}
               onChange={(e) => alterarNome(mercado.id, e.target.value)}
             />
           </div>
