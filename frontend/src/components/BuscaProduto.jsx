@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { getProdutos } from '../api/api'
 
-export default function BuscaProduto({ onAdicionar, categorias, onCriar }) {
+export default function BuscaProduto({ onAdicionar, categorias = [], onCriar }) {
   const [texto, setTexto] = useState('')
   const [sugestoes, setSugestoes] = useState([])
   const [ativa, setAtiva] = useState(-1)
