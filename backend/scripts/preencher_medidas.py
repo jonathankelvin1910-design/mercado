@@ -1,7 +1,7 @@
 from sqlalchemy import text
 
 from app.database import engine
-from scripts.medidas import medida_do_nome
+from app.medidas import medida_do_nome
 
 
 def coluna_existe(conn, tabela, coluna):

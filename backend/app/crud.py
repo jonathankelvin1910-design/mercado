@@ -56,7 +56,9 @@ def buscar_produtos(db: Session, busca: str):
 
 
 def criar_produto(db: Session, dados):
-    """Cria um novo produto."""
+    """Cria um novo produto, lendo a medida do nome (ex.: 200 g, 1 L)."""
+    from app.medidas import medida_do_nome
+
     produto_existente = db.scalars(
         select(Produto).where(func.lower(Produto.nome) == func.lower(dados.nome))
     ).first()
@@ -67,10 +69,13 @@ def criar_produto(db: Session, dados):
     if categoria is None:
         raise ValueError("categoria_inexistente")
 
+    unidade, tamanho_padrao = medida_do_nome(dados.nome)
     produto = Produto(
         nome=dados.nome,
         categoria_id=dados.categoria_id,
         quantidade_sugerida=1,
+        unidade=unidade,
+        tamanho_padrao=tamanho_padrao,
     )
     db.add(produto)
     db.commit()
