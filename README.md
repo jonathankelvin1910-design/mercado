@@ -4,6 +4,14 @@ Aplicação web para montar a lista de compras do mês, digitar o preço de cada
 
 **Tecnologias:** MySQL 8 · Python + FastAPI + SQLAlchemy + PyMySQL · React (Vite) + Axios
 
+## Telas
+
+![Resultado da comparação](docs/tela-principal.png)
+
+![Lista de compras com preços por mercado](docs/tabela-precos.png)
+
+![Comparação entre embalagens de tamanhos diferentes](docs/volume-itens.png)
+
 ## O que ela faz
 
 - **Seis mercados** configuráveis (os três primeiros já vêm nomeados: Assaí, Atacadão e Novo Atacarejo; os outros você nomeia).
