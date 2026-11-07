@@ -1,7 +1,17 @@
-import { Fragment } from 'react'
-import { parsePreco, formatarPreco, formatarMoeda } from '../utils/moeda'
+import { Fragment, useState } from 'react'
+import {
+  parsePreco,
+  formatarPreco,
+  formatarMoeda,
+  parseTamanho,
+  formatarTamanho,
+} from '../utils/moeda'
+
+const EXEMPLO = { g: 'ex.: 800 g', ml: 'ex.: 3 L', m: 'ex.: 30 m', un: 'ex.: 12 un' }
 
 export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQuantidade, onRemover }) {
+  const [informarTamanho, setInformarTamanho] = useState(false)
+
   const nomeExibicao = (mercado) => {
     const nome = (mercado.nome || '').trim()
     return nome || `Mercado ${mercado.posicao}`
@@ -33,13 +43,13 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
     }))
     .sort((a, b) => a.categoria_ordem - b.categoria_ordem)
 
-  const handleBlurPreco = (produto_id, mercado, precoAtual) => (e) => {
+  const handleBlurPreco = (produto_id, mercado, precoAtual, tamanhoAtual) => (e) => {
     const texto = e.target.value
     const numero = parsePreco(texto)
     if (numero != null) {
       e.target.value = formatarPreco(numero)
       if (numero !== precoAtual) {
-        onPreco(produto_id, mercado.id, numero)
+        onPreco(produto_id, mercado.id, numero, tamanhoAtual)
       }
     } else if (texto.trim() === '') {
       if (precoAtual != null) {
@@ -54,6 +64,26 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
   const handleInputPreco = (e) => {
     e.target.classList.remove('invalido')
     e.target.removeAttribute('aria-invalid')
+  }
+
+  const handleBlurTamanho = (item, mercado, precoAtual, tamanhoAtual) => (e) => {
+    const texto = e.target.value
+    if (texto.trim() === '') {
+      if (tamanhoAtual != null) {
+        onPreco(item.produto_id, mercado.id, precoAtual, null)
+      }
+      return
+    }
+    const tamanho = parseTamanho(texto, item.unidade)
+    if (tamanho == null) {
+      e.target.classList.add('invalido')
+      e.target.setAttribute('aria-invalid', 'true')
+      return
+    }
+    e.target.value = formatarTamanho(tamanho, item.unidade)
+    if (tamanho !== tamanhoAtual) {
+      onPreco(item.produto_id, mercado.id, precoAtual, tamanho)
+    }
   }
 
   const handleBlurQuantidade = (produto_id, quantidade) => (e) => {
@@ -107,6 +137,14 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
 
   return (
     <div className="tabela-lista">
+      <label className="opcao-tamanho">
+        <input
+          type="checkbox"
+          checked={informarTamanho}
+          onChange={(e) => setInformarTamanho(e.target.checked)}
+        />
+        Informar tamanho das embalagens (para comparar 1 L com 3 L, 200 g com 800 g…)
+      </label>
       <table>
         <thead>
           <tr>
@@ -150,6 +188,8 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
                       const precoAtual = item.precos[mercado.id] ?? null
                       const valor = precoAtual != null ? formatarPreco(precoAtual) : ''
                       const menor = d?.destacar && d.mercados_mais_baratos?.includes(mercado.id)
+                      const tamanhoAtual = item.tamanhos?.[mercado.id] ?? null
+                      const porMedida = d?.por_medida?.por_medida?.[mercado.id]
                       return (
                         <td key={mercado.id} className={menor ? 'menor' : undefined}>
                           <input
@@ -160,10 +200,30 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
                             aria-label={`Preço de ${item.nome} no ${nomeExibicao(mercado)}`}
                             defaultValue={valor}
                             key={`${item.produto_id}-${mercado.id}-${precoAtual}`}
-                            onBlur={handleBlurPreco(item.produto_id, mercado, precoAtual)}
+                            onBlur={handleBlurPreco(item.produto_id, mercado, precoAtual, tamanhoAtual)}
                             onInput={handleInputPreco}
                             onKeyDown={handleTecla}
                           />
+                          {informarTamanho && item.unidade && precoAtual != null && (
+                            <input
+                              type="text"
+                              className="tamanho"
+                              placeholder={EXEMPLO[item.unidade]}
+                              autoComplete="off"
+                              aria-label={`Tamanho da embalagem de ${item.nome} no ${nomeExibicao(mercado)}`}
+                              defaultValue={tamanhoAtual != null ? formatarTamanho(tamanhoAtual, item.unidade) : ''}
+                              key={`${item.produto_id}-${mercado.id}-t-${tamanhoAtual}-${precoAtual}`}
+                              onBlur={handleBlurTamanho(item, mercado, precoAtual, tamanhoAtual)}
+                              onInput={handleInputPreco}
+                              onKeyDown={handleTecla}
+                            />
+                          )}
+                          {porMedida != null && precoAtual != null && (
+                            <small className="por-medida">
+                              {tamanhoAtual != null && `${formatarTamanho(tamanhoAtual, item.unidade)} · `}
+                              {formatarMoeda(porMedida)}/{d.por_medida.unidade}
+                            </small>
+                          )}
                         </td>
                       )
                     })}
