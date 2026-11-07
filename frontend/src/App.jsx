@@ -88,8 +88,8 @@ export default function App() {
       await postLista(produto.id)
     })
 
-  const alterarPreco = (produtoId, mercadoId, valor) =>
-    executar(() => putPreco(produtoId, mercadoId, valor))
+  const alterarPreco = (produtoId, mercadoId, valor, tamanho = null) =>
+    executar(() => putPreco(produtoId, mercadoId, valor, tamanho))
 
   const alterarQuantidade = (produtoId, quantidade) =>
     executar(() => patchLista(produtoId, quantidade))

@@ -28,8 +28,8 @@ export const patchLista = (produto_id, quantidade) =>
 export const deleteLista = (produto_id) =>
   api.delete(`/lista/${produto_id}`).then((r) => r.data)
 
-export const putPreco = (produto_id, mercado_id, valor) =>
-  api.put('/precos/', { produto_id, mercado_id, valor }).then((r) => r.data)
+export const putPreco = (produto_id, mercado_id, valor, tamanho = null) =>
+  api.put('/precos/', { produto_id, mercado_id, valor, tamanho }).then((r) => r.data)
 
 export const deletePrecos = () => api.delete('/precos/').then((r) => r.data)
 
