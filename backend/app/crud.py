@@ -90,11 +90,12 @@ def listar_lista(db: Session):
 
     resultado = []
     for item, produto, categoria in itens:
-        precos = {
-            preco.mercado_id: preco.valor
-            for preco in db.scalars(
-                select(Preco).where(Preco.produto_id == produto.id)
-            ).all()
+        linhas_preco = db.scalars(
+            select(Preco).where(Preco.produto_id == produto.id)
+        ).all()
+        precos = {p.mercado_id: p.valor for p in linhas_preco}
+        tamanhos = {
+            p.mercado_id: p.tamanho for p in linhas_preco if p.tamanho is not None
         }
         resultado.append(
             {
@@ -105,6 +106,9 @@ def listar_lista(db: Session):
                 "categoria_ordem": categoria.ordem,
                 "quantidade": item.quantidade,
                 "precos": precos,
+                "unidade": produto.unidade,
+                "tamanho_padrao": produto.tamanho_padrao,
+                "tamanhos": tamanhos,
             }
         )
     return resultado
@@ -148,7 +152,7 @@ def remover_da_lista(db: Session, produto_id: int) -> bool:
     return True
 
 
-def definir_preco(db: Session, produto_id: int, mercado_id: int, valor):
+def definir_preco(db: Session, produto_id: int, mercado_id: int, valor, tamanho=None):
     """Define o preço de um produto em um mercado.
 
     Levanta ValueError("produto_inexistente") se o produto não existir e
@@ -174,10 +178,13 @@ def definir_preco(db: Session, produto_id: int, mercado_id: int, valor):
 
     preco = db.get(Preco, (produto_id, mercado_id))
     if preco is None:
-        preco = Preco(produto_id=produto_id, mercado_id=mercado_id, valor=valor)
+        preco = Preco(
+            produto_id=produto_id, mercado_id=mercado_id, valor=valor, tamanho=tamanho
+        )
         db.add(preco)
     else:
         preco.valor = valor
+        preco.tamanho = tamanho
     db.commit()
     db.refresh(preco)
     return preco

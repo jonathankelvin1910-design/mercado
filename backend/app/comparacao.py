@@ -2,6 +2,16 @@ from decimal import ROUND_HALF_UP, Decimal
 
 ZERO = Decimal("0")
 UM_DECIMAL = Decimal("0.1")
+CENTAVO = Decimal("0.01")
+QUATRO_CASAS = Decimal("0.0001")
+
+# Unidade base -> (fator para exibir, rótulo exibido). g vira kg e ml vira L.
+EXIBICAO = {
+    "g": (Decimal(1000), "kg"),
+    "ml": (Decimal(1000), "L"),
+    "m": (Decimal(1), "m"),
+    "un": (Decimal(1), "un"),
+}
 
 
 def _nome_mercado(mercado):
@@ -9,13 +19,68 @@ def _nome_mercado(mercado):
     return nome or f"Mercado {mercado['posicao']}"
 
 
+def _por_medida(item, posicoes):
+    """Converte os preços de um item para o mesmo tamanho de embalagem.
+
+    Só age quando algum mercado com preço tem tamanho informado. O tamanho de
+    referência é o tamanho padrão do produto ou, se ele não existir, o do
+    primeiro mercado (pela posição) que informou tamanho. Mercados sem tamanho
+    informado usam o tamanho de referência.
+
+    Devolve (preços equivalentes, info) ou (preços originais, None).
+    """
+    precos = item["precos"]
+    tamanhos = {
+        mid: t
+        for mid, t in (item.get("tamanhos") or {}).items()
+        if t and mid in precos
+    }
+    if not tamanhos:
+        return precos, None
+
+    referencia = item.get("tamanho_padrao")
+    if not referencia:
+        primeiro = min(tamanhos, key=lambda mid: posicoes.get(mid, 0))
+        referencia = tamanhos[primeiro]
+
+    fator, rotulo = EXIBICAO.get(item.get("unidade") or "un", (Decimal(1), "un"))
+    equivalentes = {}
+    por_medida = {}
+    for mid, valor in precos.items():
+        tamanho = tamanhos.get(mid) or referencia
+        equivalentes[mid] = (valor * referencia / tamanho).quantize(
+            CENTAVO, rounding=ROUND_HALF_UP
+        )
+        por_medida[mid] = (valor / tamanho * fator).quantize(
+            QUATRO_CASAS, rounding=ROUND_HALF_UP
+        )
+    info = {
+        "unidade": rotulo,
+        "tamanho_referencia": referencia,
+        "por_medida": por_medida,
+    }
+    return equivalentes, info
+
+
 def calcular_comparacao(itens, mercados):
     """Compara os mercados para a lista de compras, sem acessar o banco.
 
-    itens: [{produto_id, nome, quantidade, precos: {mercado_id: Decimal}}]
+    itens: [{produto_id, nome, quantidade, precos: {mercado_id: Decimal},
+             unidade, tamanho_padrao, tamanhos: {mercado_id: Decimal}}]
+            (unidade, tamanho_padrao e tamanhos são opcionais)
     mercados: [{id, posicao, nome}]
     """
     nomes = {m["id"]: _nome_mercado(m) for m in mercados}
+    posicoes = {m["id"]: m["posicao"] for m in mercados}
+
+    # Itens com preços já convertidos para o mesmo tamanho (quando há medida).
+    medidas = {}
+    efetivos = []
+    for item in itens:
+        precos, info = _por_medida(item, posicoes)
+        medidas[item["produto_id"]] = info
+        efetivos.append({**item, "precos": precos})
+    itens = efetivos
 
     # Mercados que têm pelo menos um preço em algum item (na ordem de posicao).
     ids_com_preco = [
@@ -109,6 +174,7 @@ def calcular_comparacao(itens, mercados):
                 "mercados_mais_baratos": [],
                 "poupa": ZERO,
                 "destacar": False,
+                "por_medida": None,
             }
             continue
         menor = min(precos.values())
@@ -120,6 +186,7 @@ def calcular_comparacao(itens, mercados):
             ],
             "poupa": maior - menor,
             "destacar": len(precos) >= 2 and maior != menor,
+            "por_medida": medidas[item["produto_id"]],
         }
 
     return {

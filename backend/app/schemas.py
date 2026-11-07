@@ -54,9 +54,13 @@ class ListaItemOut(BaseModel):
     categoria_ordem: int
     quantidade: int
     precos: dict[int, float]
+    unidade: Optional[str] = None
+    tamanho_padrao: Optional[float] = None
+    tamanhos: dict[int, float] = {}
 
 
 class PrecoSet(BaseModel):
     produto_id: int
     mercado_id: int
     valor: Optional[Annotated[Decimal, Field(gt=0, le=Decimal('99999.99'))]] = None
+    tamanho: Optional[Annotated[Decimal, Field(gt=0, le=Decimal('9999999'))]] = None

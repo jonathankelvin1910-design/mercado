@@ -36,6 +36,8 @@ class Produto(Base):
     nome = Column(String(80), nullable=False, unique=True)
     categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
     quantidade_sugerida = Column(Integer, nullable=False, default=1)
+    unidade = Column(String(2), nullable=True)
+    tamanho_padrao = Column(Numeric(12, 3), nullable=True)
 
     categoria = relationship("Categoria")
 
@@ -62,6 +64,7 @@ class Preco(Base):
         Integer, ForeignKey("mercados.id", ondelete="CASCADE"), primary_key=True
     )
     valor = Column(Numeric(10, 2), nullable=False)
+    tamanho = Column(Numeric(12, 3), nullable=True)
 
     produto = relationship("Produto")
     mercado = relationship("Mercado")

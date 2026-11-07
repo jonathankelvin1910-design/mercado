@@ -10,7 +10,9 @@ router = APIRouter(prefix="/precos", tags=["precos"])
 @router.put("/")
 def definir(payload: PrecoSet, db=Depends(get_db)):
     try:
-        preco = definir_preco(db, payload.produto_id, payload.mercado_id, payload.valor)
+        preco = definir_preco(
+            db, payload.produto_id, payload.mercado_id, payload.valor, payload.tamanho
+        )
     except ValueError as exc:
         if exc.args and exc.args[0] == "produto_inexistente":
             raise HTTPException(status_code=404, detail="Produto não encontrado")
@@ -21,6 +23,9 @@ def definir(payload: PrecoSet, db=Depends(get_db)):
         "produto_id": payload.produto_id,
         "mercado_id": payload.mercado_id,
         "valor": None if preco is None else float(preco.valor),
+        "tamanho": None
+        if preco is None or preco.tamanho is None
+        else float(preco.tamanho),
     }
 
 
