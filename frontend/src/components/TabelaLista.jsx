@@ -143,7 +143,7 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
           checked={informarTamanho}
           onChange={(e) => setInformarTamanho(e.target.checked)}
         />
-        Informar tamanho das embalagens (para comparar 1 L com 3 L, 200 g com 800 g…)
+        Se deseja comparar por "volume, peso, tamanho", click aqui!
       </label>
       <table>
         <thead>
@@ -210,7 +210,7 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
                               className="tamanho"
                               placeholder={EXEMPLO[item.unidade]}
                               autoComplete="off"
-                              aria-label={`Tamanho da embalagem de ${item.nome} no ${nomeExibicao(mercado)}`}
+                              aria-label={`volume do item ${item.nome} no ${nomeExibicao(mercado)}`}
                               defaultValue={tamanhoAtual != null ? formatarTamanho(tamanhoAtual, item.unidade) : ''}
                               key={`${item.produto_id}-${mercado.id}-t-${tamanhoAtual}-${precoAtual}`}
                               onBlur={handleBlurTamanho(item, mercado, precoAtual, tamanhoAtual)}
