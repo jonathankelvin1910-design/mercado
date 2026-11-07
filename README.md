@@ -12,6 +12,7 @@ Aplicação web para montar a lista de compras do mês, digitar o preço de cada
 - **Tabela da lista** agrupada por categoria, com um campo de preço por mercado, quantidade e botão de remover. O preço é por embalagem e a quantidade multiplica.
 - **Comparação automática** a cada alteração: mercado mais barato, ranking com a diferença em R$ e em %, menor preço de cada item e quanto se poupa, e totais no rodapé.
 - **Compra dividida:** quanto sairia a compra se cada item fosse comprado no mercado mais barato dele.
+- **Embalagens de tamanhos diferentes (opcional):** informe o tamanho de cada embalagem (por exemplo, 1 L em um mercado e 3 L em outro, ou 200 g e 800 g) e o sistema compara pelo preço por medida (R$/L, R$/kg, R$/m). Sem tamanho informado, o cálculo é por embalagem, como sempre.
 
 ## Como a comparação funciona
 
@@ -20,6 +21,7 @@ Aplicação web para montar a lista de compras do mês, digitar o preço de cada
 3. O total de cada mercado soma `preço × quantidade` dos itens em comum. Vence o menor total (empates dividem a vitória).
 4. Por item, o menor preço só é destacado quando há 2 ou mais preços diferentes. "Poupa" é o maior preço menos o menor.
 5. Itens com preço que não estão em comum aparecem como "fora da comparação", e um segundo rodapé soma tudo o que cada mercado tem preço.
+6. Quando o tamanho da embalagem é informado, os preços do item são convertidos para o tamanho padrão do produto antes de qualquer soma ou comparação.
 
 Os cálculos usam `Decimal` no backend (`backend/app/comparacao.py`), nunca `float`.
 
@@ -82,6 +84,12 @@ DB_PORT=3306
 DB_USER=mercado_app
 DB_PASSWORD=a-senha-que-você-escolheu
 DB_NAME=mercado
+```
+
+Crie as colunas de medida (tamanho das embalagens) e preencha-as a partir dos nomes dos produtos. Pode rodar mais de uma vez sem problema:
+
+```bash
+python -m scripts.preencher_medidas
 ```
 
 Suba a API:
