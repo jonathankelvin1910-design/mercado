@@ -260,3 +260,34 @@ button.perigo { background: var(--red); border-color: var(--red); color: #fff; }
 .opcao-tamanho input { width: auto; }
 .tabela-lista input.tamanho { margin-top: 4px; padding: 4px 8px; font-size: 0.8rem; text-align: right; }
 .por-medida { display: block; margin-top: 3px; text-align: right; color: var(--muted); font-size: 0.75rem; }
+
+/* Celular: cada produto vira um cartão */
+@media (max-width: 720px) {
+  .tabela-lista { overflow-x: visible; background: none; border: 0; box-shadow: none; }
+  .tabela-lista table, .tabela-lista tbody, .tabela-lista tfoot,
+  .tabela-lista tr, .tabela-lista th, .tabela-lista td { display: block; }
+  .tabela-lista table { min-width: 0; }
+  .tabela-lista thead { display: none; }
+
+  .tabela-lista tr.categoria td { background: none; padding: 16px 4px 2px; }
+
+  .tabela-lista tr.item, .tabela-lista tfoot tr {
+    position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px;
+    margin-top: 10px; padding: 12px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .tabela-lista tr.item td, .tabela-lista tfoot td, .tabela-lista tfoot th { padding: 0; border: 0; }
+  .tabela-lista td[data-label]::before {
+    content: attr(data-label); display: block; margin-bottom: 4px; color: var(--muted);
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tabela-lista td.produto { grid-column: 1 / -1; padding-right: 40px; font-size: 1rem; font-weight: 600; }
+  .tabela-lista td.mais-barato { grid-column: 1 / -1; min-width: 0; }
+  .tabela-lista tr.item td:last-child { position: absolute; top: 8px; right: 8px; z-index: 1; }
+  .tabela-lista td input[type="text"], .tabela-lista td input[type="number"] { width: 100%; min-width: 0; }
+  .tabela-lista td input[type="number"] { text-align: left; }
+  .tabela-lista tr.item td.menor { border-radius: 8px; box-shadow: 0 0 0 6px var(--green-bg); }
+  .tabela-lista tfoot th { grid-column: 1 / -1; }
+  .tabela-lista tfoot td:empty { display: none; }
+  .tabela-lista tfoot tr.total-comum td.melhor { border-radius: 8px; box-shadow: 0 0 0 6px var(--green-bg); }
+}

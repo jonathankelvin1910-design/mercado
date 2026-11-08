@@ -171,8 +171,8 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
                 const d = comparacao?.por_item?.[item.produto_id]
                 return (
                   <tr key={item.produto_id} className="item">
-                    <td>{item.nome}</td>
-                    <td>
+                    <td className="produto">{item.nome}</td>
+                    <td data-label="Qtd">
                       <input
                         type="number"
                         min={1}
@@ -191,7 +191,11 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
                       const tamanhoAtual = item.tamanhos?.[mercado.id] ?? null
                       const porMedida = d?.por_medida?.por_medida?.[mercado.id]
                       return (
-                        <td key={mercado.id} className={menor ? 'menor' : undefined}>
+                        <td
+                          key={mercado.id}
+                          className={menor ? 'menor' : undefined}
+                          data-label={nomeExibicao(mercado)}
+                        >
                           <input
                             type="text"
                             inputMode="decimal"
@@ -227,7 +231,9 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
                         </td>
                       )
                     })}
-                    <td className="mais-barato">{renderMaisBarato(d, item)}</td>
+                    <td className="mais-barato" data-label="Mais barato">
+                      {renderMaisBarato(d, item)}
+                    </td>
                     <td>
                       <button
                         type="button"
@@ -251,12 +257,16 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
               const total = rankingItem?.total
               const melhor = total != null && firstTotal != null && total === firstTotal
               return (
-                <td key={mercado.id} className={melhor ? 'melhor' : undefined}>
+                <td
+                  key={mercado.id}
+                  className={melhor ? 'melhor' : undefined}
+                  data-label={nomeExibicao(mercado)}
+                >
                   {total != null ? formatarMoeda(total) : '—'}
                 </td>
               )
             })}
-            <td className="mais-barato">
+            <td className="mais-barato" data-label="Mais barato">
               <strong>
                 {vencedores.join(' · ')}
               </strong>
@@ -268,7 +278,7 @@ export default function TabelaLista({ itens, mercados, comparacao, onPreco, onQu
             {mercados.map((mercado) => {
               const tp = comparacao?.totais_preenchidos?.[mercado.id]
               return (
-                <td key={mercado.id}>
+                <td key={mercado.id} data-label={nomeExibicao(mercado)}>
                   {tp ? (
 <>
 {formatarMoeda(tp.total)}
