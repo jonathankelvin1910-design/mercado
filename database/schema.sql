@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS produtos (
   nome VARCHAR(80) NOT NULL UNIQUE,
   categoria_id INT NOT NULL,
   quantidade_sugerida INT NOT NULL DEFAULT 1,
+  unidade VARCHAR(2) NULL,
+  tamanho_padrao DECIMAL(12,3) NULL,
   FOREIGN KEY (categoria_id) REFERENCES categorias(id)
 );
 
@@ -33,6 +35,7 @@ CREATE TABLE IF NOT EXISTS precos (
   produto_id INT NOT NULL,
   mercado_id INT NOT NULL,
   valor DECIMAL(10,2) NOT NULL,
+  tamanho DECIMAL(12,3) NULL,
   PRIMARY KEY (produto_id, mercado_id),
   FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE,
   FOREIGN KEY (mercado_id) REFERENCES mercados(id) ON DELETE CASCADE
@@ -181,3 +184,92 @@ SELECT id, quantidade_sugerida FROM produtos WHERE nome IN (
   'Papel higiênico 12 rolos',
   'Refrigerante 2 L'
 );
+
+-- Medida de cada produto do catálogo, lida do nome: unidade base (g, ml, m ou un)
+-- e tamanho padrão da embalagem nessa unidade (ex.: 5 kg = 5000 g, 2 L = 2000 ml).
+-- Só preenche quem ainda não tem medida, então rodar de novo não desfaz ajustes.
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 5000 WHERE nome = 'Arroz branco 5 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Feijão carioca 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Feijão preto 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 500 WHERE nome = 'Macarrão espaguete 500 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 500 WHERE nome = 'Macarrão parafuso 500 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Açúcar refinado 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Sal refinado 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 900 WHERE nome = 'Óleo de soja 900 ml' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 500 WHERE nome = 'Azeite de oliva 500 ml' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Farinha de trigo 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Farinha de mandioca 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 500 WHERE nome = 'Fubá 500 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Goma de tapioca 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 340 WHERE nome = 'Molho de tomate 340 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 300 WHERE nome = 'Extrato de tomate 300 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 170 WHERE nome = 'Milho verde em lata 170 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 125 WHERE nome = 'Sardinha em lata 125 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 170 WHERE nome = 'Atum em lata 170 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 750 WHERE nome = 'Vinagre 750 ml' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 500 WHERE nome = 'Maionese 500 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 380 WHERE nome = 'Ketchup 380 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 500 WHERE nome = 'Café torrado 500 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 400 WHERE nome = 'Achocolatado em pó 400 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 395 WHERE nome = 'Leite condensado 395 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 200 WHERE nome = 'Creme de leite 200 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 500 WHERE nome = 'Pão de forma 500 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Pão francês 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 400 WHERE nome = 'Biscoito cream cracker 400 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 400 WHERE nome = 'Biscoito maisena 400 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 140 WHERE nome = 'Biscoito recheado 140 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 300 WHERE nome = 'Cereal matinal 300 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 200 WHERE nome = 'Aveia em flocos 200 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 500 WHERE nome = 'Margarina 500 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Tomate 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Cebola 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Batata inglesa 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Cenoura 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 100 WHERE nome = 'Alho 100 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Pimentão verde 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Repolho 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Macaxeira 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Inhame 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Banana prata 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Maçã 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Laranja 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Limão 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Mamão 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'un', tamanho_padrao = 30 WHERE nome = 'Ovos cartela 30 un' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Peito de frango 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Frango inteiro 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Coxa e sobrecoxa 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Carne moída 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Acém 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 500 WHERE nome = 'Charque 500 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Linguiça toscana 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Filé de tilápia 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 1000 WHERE nome = 'Leite integral 1 L' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 400 WHERE nome = 'Leite em pó 400 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 200 WHERE nome = 'Manteiga 200 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 200 WHERE nome = 'Requeijão 200 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 170 WHERE nome = 'Iogurte natural 170 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Queijo mussarela 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Queijo coalho 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Presunto 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Mortadela 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 2000 WHERE nome = 'Refrigerante 2 L' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 1000 WHERE nome = 'Suco de caixinha 1 L' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 1500 WHERE nome = 'Água mineral 1,5 L' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 350 WHERE nome = 'Cerveja lata 350 ml' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 1000 WHERE nome = 'Água de coco 1 L' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 500 WHERE nome = 'Detergente 500 ml' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 1000 WHERE nome = 'Sabão em pó 1 kg' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'un', tamanho_padrao = 5 WHERE nome = 'Sabão em barra 5 un' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 2000 WHERE nome = 'Amaciante 2 L' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 2000 WHERE nome = 'Água sanitária 2 L' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 2000 WHERE nome = 'Desinfetante 2 L' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 500 WHERE nome = 'Multiuso 500 ml' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'un', tamanho_padrao = 3 WHERE nome = 'Esponja de cozinha 3 un' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'm', tamanho_padrao = NULL WHERE nome = 'Papel toalha 2 rolos' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'm', tamanho_padrao = NULL WHERE nome = 'Papel higiênico 12 rolos' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 85 WHERE nome = 'Sabonete 85 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 350 WHERE nome = 'Shampoo 350 ml' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 350 WHERE nome = 'Condicionador 350 ml' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'g', tamanho_padrao = 90 WHERE nome = 'Creme dental 90 g' AND unidade IS NULL;
+UPDATE produtos SET unidade = 'ml', tamanho_padrao = 150 WHERE nome = 'Desodorante 150 ml' AND unidade IS NULL;

@@ -94,7 +94,7 @@ DB_PASSWORD=a-senha-que-você-escolheu
 DB_NAME=mercado
 ```
 
-Crie as colunas de medida (tamanho das embalagens) e preencha-as a partir dos nomes dos produtos. Pode rodar mais de uma vez sem problema:
+Se você já tinha um banco criado antes da comparação por tamanho de embalagem, atualize-o com o script abaixo (cria as colunas de medida e preenche pelos nomes dos produtos; pode rodar mais de uma vez). Em uma instalação nova isso não é necessário, porque o `database/schema.sql` já cria tudo:
 
 ```bash
 python -m scripts.preencher_medidas
