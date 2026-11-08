@@ -59,8 +59,9 @@ def criar_produto(db: Session, dados):
     """Cria um novo produto, lendo a medida do nome (ex.: 200 g, 1 L)."""
     from app.medidas import medida_do_nome
 
+    nome = dados.nome[:1].upper() + dados.nome[1:]
     produto_existente = db.scalars(
-        select(Produto).where(func.lower(Produto.nome) == func.lower(dados.nome))
+        select(Produto).where(func.lower(Produto.nome) == func.lower(nome))
     ).first()
     if produto_existente is not None:
         raise ValueError("nome_existente")
@@ -69,9 +70,9 @@ def criar_produto(db: Session, dados):
     if categoria is None:
         raise ValueError("categoria_inexistente")
 
-    unidade, tamanho_padrao = medida_do_nome(dados.nome)
+    unidade, tamanho_padrao = medida_do_nome(nome)
     produto = Produto(
-        nome=dados.nome,
+        nome=nome,
         categoria_id=dados.categoria_id,
         quantidade_sugerida=1,
         unidade=unidade,
