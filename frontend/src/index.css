@@ -291,3 +291,15 @@ button.perigo { background: var(--red); border-color: var(--red); color: #fff; }
   .tabela-lista tfoot td:empty { display: none; }
   .tabela-lista tfoot tr.total-comum td.melhor { border-radius: 8px; box-shadow: 0 0 0 6px var(--green-bg); }
 }
+
+/* Cabeçalho fixo: os nomes dos mercados acompanham a rolagem (telas largas) */
+@media (min-width: 921px) {
+  .tabela-lista { overflow: clip; }
+  .tabela-lista thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--surface);
+    box-shadow: 0 1px 0 var(--border), 0 8px 12px -8px rgba(0, 0, 0, 0.7);
+  }
+}
