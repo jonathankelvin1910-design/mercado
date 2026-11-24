@@ -303,3 +303,108 @@ button.perigo { background: var(--red); border-color: var(--red); color: #fff; }
     box-shadow: 0 1px 0 var(--border), 0 8px 12px -8px rgba(0, 0, 0, 0.7);
   }
 }
+
+/* ===== Tema claro (fundo branco, mais contraste entre as partes) ===== */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #f3f6fc;
+  --surface-2: #ffffff;
+  --border: #c9d2e3;
+  --field-border: #9facc6;
+  --text: #0f172a;
+  --muted: #475569;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --green: #17a34a;
+  --green-bg: #d9f5e3;
+  --green-ink: #0b5b2b;
+  --red: #dc2626;
+  --head: #1e2a4a;
+  --cat-bg: #e3ebff;
+  --cat-ink: #1d3a8a;
+  --prod-bg: #eef3ff;
+  --qty-bg: #fff4d6;
+  --qty-border: #e0b54a;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+body { background: #ffffff; }
+h1 { font-weight: 800; }
+
+select, input, textarea { color-scheme: light; }
+select option { background: #ffffff; color: var(--text); }
+select option:checked, select option:hover { background: var(--accent); color: #ffffff; }
+
+.app label {
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.app label.opcao-tamanho {
+  font-size: 0.85rem; font-weight: 500; text-transform: none; letter-spacing: 0;
+}
+
+input, select { border: 1.5px solid var(--field-border); }
+input::placeholder { color: #8591a8; }
+input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25); }
+input[type="checkbox"] { accent-color: var(--accent); }
+
+.erro { background: #fee2e2; border-color: var(--red); color: #991b1b; }
+.painel, .resultado { border-width: 1.5px; }
+
+.sugestoes { background: #ffffff; border-color: var(--field-border); }
+.sugestao.ativa, .sugestao:hover { background: var(--cat-bg); }
+.sugestao.produto-novo, .produto-novo { color: var(--accent); }
+
+.ranking li { background: #ffffff; }
+.ranking .pos { background: var(--cat-bg); color: var(--cat-ink); }
+.ranking li.primeiro { border-color: var(--green); background: var(--green-bg); }
+.etiqueta { box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18); }
+.mb-nome { color: var(--green-ink); font-weight: 700; }
+
+/* Tabela (telas largas): cabeçalho escuro, produto em destaque, quantidade amarela, mais barato em verde */
+@media (min-width: 721px) {
+  .tabela-lista { background: #ffffff; border: 1.5px solid var(--border); }
+
+  .tabela-lista thead th {
+    background: var(--head); color: #ffffff; border-bottom: 0;
+    font-size: 0.8rem; font-weight: 700; padding: 0 10px; height: 50px;
+  }
+  .tabela-lista thead th:nth-child(n+3):nth-last-child(n+3) { text-align: center; font-size: 0.88rem; }
+
+  .tabela-lista tr.categoria td {
+    background: var(--cat-bg); color: var(--cat-ink);
+    font-size: 0.8rem; font-weight: 800; padding: 9px 12px;
+  }
+
+  .tabela-lista td.produto { background: var(--prod-bg); font-weight: 700; font-size: 1rem; padding: 0 12px; }
+  .tabela-lista td input[type="number"] { background: var(--qty-bg); border-color: var(--qty-border); font-weight: 700; }
+  .tabela-lista td input[type="text"] { font-weight: 600; }
+  .tabela-lista td.menor input { border: 2px solid var(--green); background: #ffffff; color: var(--green-ink); font-weight: 800; }
+
+  .tabela-lista tr.item td { border-bottom: 1px solid var(--border); }
+  .tabela-lista tr.item:hover td:not(.produto):not(.menor) { background: #f7f9fd; }
+  .tabela-lista tr.item:hover td.produto { background: #e3ecff; }
+  .tabela-lista tr.item td:last-child button { color: #b91c1c; background: #ffffff; border-color: var(--field-border); }
+
+  .tabela-lista tfoot th { background: var(--cat-bg); color: var(--cat-ink); text-transform: uppercase; font-size: 0.8rem; height: 56px; padding: 0 12px; }
+  .tabela-lista tfoot td { background: #ffffff; text-align: center; font-size: 1rem; border-top: 2px solid var(--border); }
+  .tabela-lista tfoot th { border-top: 2px solid var(--border); }
+  .tabela-lista tfoot tr.total-comum td.melhor { color: var(--green-ink); background: var(--green-bg); }
+  .tabela-lista tfoot tr.total-preenchido th { background: #f1f4fa; color: var(--muted); }
+  .tabela-lista tfoot tr.total-preenchido td { color: var(--muted); }
+}
+
+/* Cabeçalho fixo com a nova cor */
+@media (min-width: 921px) {
+  .tabela-lista thead th { background: var(--head); box-shadow: 0 1px 0 var(--border), 0 8px 12px -8px rgba(15, 23, 42, 0.35); }
+}
+
+/* Celular: cartões claros, com o produto em destaque */
+@media (max-width: 720px) {
+  .tabela-lista tr.item td.produto { color: var(--text); }
+  .tabela-lista tr.categoria td { color: var(--cat-ink); font-weight: 800; }
+  .tabela-lista tr.item, .tabela-lista tfoot tr { background: #ffffff; border-width: 1.5px; }
+  .tabela-lista td input[type="number"] { background: var(--qty-bg); border-color: var(--qty-border); }
+  .tabela-lista td.menor input { border: 2px solid var(--green); color: var(--green-ink); font-weight: 800; }
+  .tabela-lista tfoot tr.total-comum td.melhor { color: var(--green-ink); }
+}
